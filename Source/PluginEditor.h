@@ -31,6 +31,8 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
+    
+
 
 private:
     /** private members declaration */

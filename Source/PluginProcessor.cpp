@@ -23,13 +23,16 @@ GranularSynthAudioProcessor::GranularSynthAudioProcessor()
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
                        ),
-        Thread("scheduling thread")
+        Thread("scheduling thread"),
+        positionParam(nullptr)
+
 #endif
 {
+    addParameter(positionParam = new AudioParameterFloat("pos", "Position", 0.0f, 1.0f, 0.5f));
     
+    time = 0;
 
     formatManager.registerBasicFormats();
-    startThread();
 }
 
 GranularSynthAudioProcessor::~GranularSynthAudioProcessor()
@@ -149,6 +152,9 @@ void GranularSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     const int numSamplesInBlock = buffer.getNumSamples();
     const int numSamplesInFile = fileBuffer->getAudioSampleBuffer()->getNumSamples();
     
+    const Array<Grain> localStack = grainStack;
+
+    
     AudioSampleBuffer* currentBuffer = retainedBuffer->getAudioSampleBuffer();
 
     /** audio processing */
@@ -212,6 +218,16 @@ void GranularSynthAudioProcessor::loadAudioFile(String path)
     }
 }
 
+int GranularSynthAudioProcessor::wrap(int val, const int low, const int high)
+{
+    int range_size = high - low + 1;
+    
+    if (val < low)
+        val += range_size * ((low - val) / range_size + 1);
+    
+    return low + (val - low) % range_size;
+}
+
 
 //==============================================================================
 /** thread stuffs */
@@ -220,9 +236,41 @@ void GranularSynthAudioProcessor::run()
     while (!threadShouldExit()) {
         checkForPathToOpen();
         checkForBuffersToFree();
+        
+        // delete grains
+        if( grainStack.size() > 0){
+            for (int i=grainStack.size() - 1; i >= 0; --i) {
+                // check if the grain has ended
+                long long int grainEnd = grainStack[i].onset + grainStack[i].length;
+                bool hasEnded = grainEnd < time;
+                
+                if(hasEnded) grainStack.remove(i); // [4]
+            }
+        }
+        
+        
         wait(500);
     }
+    int numSamples = fileBuffer->getAudioSampleBuffer()->getNumSamples();
     
+    int onset = 1000;
+    int length = 44100;
+    
+    int startPosition = *positionParam * numSamples;
+    startPosition = wrap(startPosition, 0, numSamples);
+    
+    float rate = 1;
+    
+    float envMid = 0.5;
+    float envSus = 0.5;
+    float envCurve = -3;
+    
+    //test
+    float ratio = 0.1;
+    float amp = 0.5;
+    
+    grainStack.add( Grain(onset, length, startPosition, envMid, envSus, envCurve, ratio, amp) );
+
 }
 
 void GranularSynthAudioProcessor::checkForPathToOpen()

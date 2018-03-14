@@ -68,9 +68,22 @@ public:
     void checkForPathToOpen();
     void checkForBuffersToFree();
     
+    
+    // Utility
+    int wrap(int val, const int lo, const int hi);
+    
 
 
     String chosenPath;  //!< file chosen to open
+    
+    double sampleRate;
+    long long int time;
+    
+    Array<Grain> grainStack;
+    
+    // Parameters
+    // Main Grain Parameters:
+    AudioParameterFloat* positionParam;
     
     
     
