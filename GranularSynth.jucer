@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT name="GranularSynth" projectType="audioplug" buildStandalone="1"
-              jucerVersion="5.2.1">
+              jucerVersion="5.2.1" pluginIsSynth="1" pluginWantsMidiIn="1">
   <MAINGROUP id="ccimDD" name="GranularSynth">
     <GROUP id="{DF1C5801-C39B-7B8D-7F92-370FE25E3C71}" name="Source">
       <FILE id="OUFh20" name="PluginProcessor.cpp" compile="1" resource="0"
