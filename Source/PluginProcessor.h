@@ -8,7 +8,11 @@
   ==============================================================================
 */
 
+
+
 #pragma once
+
+#include "Grain.h"
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ReferenceCountedBuffer.h"

@@ -8,6 +8,9 @@
   ==============================================================================
 */
 
+#ifndef REFERENCECOUNTEDBUFFER_H_INCLUDED
+#define REFERENCECOUNTEDBUFFER_H_INCLUDED
+
 #pragma once
 class ReferenceCountedBuffer: public ReferenceCountedObject
 {
@@ -31,3 +34,6 @@ private:
     String name;
     AudioSampleBuffer buffer;
 };
+
+#endif  // REFERENCECOUNTEDBUFFER_H_INCLUDED
+
