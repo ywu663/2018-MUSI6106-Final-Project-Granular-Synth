@@ -22,16 +22,19 @@ GranularSynthAudioProcessor::GranularSynthAudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+        Thread("scheduling thread")
 #endif
 {
+    
+
     formatManager.registerBasicFormats();
-    String path = "/Users/yonglianghe/Desktop/Project.wav";
-    loadAudioFile(path);
+    startThread();
 }
 
 GranularSynthAudioProcessor::~GranularSynthAudioProcessor()
 {
+    stopThread(4000);
 }
 
 //==============================================================================
@@ -104,8 +107,6 @@ void GranularSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 
 void GranularSynthAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -141,13 +142,20 @@ void GranularSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+
+    ReferenceCountedBuffer::Ptr retainedBuffer(fileBuffer);
+    if (retainedBuffer == nullptr) return;
+
     const int numSamplesInBlock = buffer.getNumSamples();
     const int numSamplesInFile = fileBuffer->getAudioSampleBuffer()->getNumSamples();
+    
+    AudioSampleBuffer* currentBuffer = retainedBuffer->getAudioSampleBuffer();
+
     /** audio processing */
     for (int sample = 0; sample < numSamplesInBlock; sample++) {
         for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
             float* outputData = buffer.getWritePointer(channel);
-            const float* fileData = fileBuffer->getAudioSampleBuffer()->getReadPointer(channel % (fileBuffer->getAudioSampleBuffer()->getNumChannels()));
+            const float* fileData = currentBuffer->getReadPointer(channel % currentBuffer->getNumChannels());
             outputData[sample] = fileData[filePosition];
         }
 
@@ -175,15 +183,10 @@ AudioProcessorEditor* GranularSynthAudioProcessor::createEditor()
 //==============================================================================
 void GranularSynthAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
 }
 
 void GranularSynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
 }
 
 //==============================================================================
@@ -197,12 +200,43 @@ void GranularSynthAudioProcessor::loadAudioFile(String path)
         ReferenceCountedBuffer::Ptr newBuffer = new ReferenceCountedBuffer(file.getFileName(),
                                                                            reader->numChannels,
                                                                            (int)reader->lengthInSamples);
+        if (newBuffer == nullptr) {
+            std::cout << "the referenceCountedBuffer is empty!" << std::endl;
+            return;
+        }
         if (reader != nullptr) {
             reader->read(newBuffer->getAudioSampleBuffer(), 0, (int)reader->lengthInSamples, 0, true, true);
             std::cout << "Samples in Buffer: " << newBuffer->getAudioSampleBuffer()->getNumSamples() << std::endl;
             fileBuffer = newBuffer;
         }
     }
+}
+
+
+//==============================================================================
+/** thread stuffs */
+void GranularSynthAudioProcessor::run()
+{
+    while (!threadShouldExit()) {
+        checkForPathToOpen();
+        checkForBuffersToFree();
+        wait(500);
+    }
+    
+}
+
+void GranularSynthAudioProcessor::checkForPathToOpen()
+{
+    String pathToOpen;
+    std::swap(pathToOpen, chosenPath);
+    if (pathToOpen.isNotEmpty()) {
+        loadAudioFile(pathToOpen);
+    }
+}
+
+void GranularSynthAudioProcessor::checkForBuffersToFree()
+{
+    
 }
 
 
