@@ -8,14 +8,11 @@
   ==============================================================================
 */
 
-
-
 #pragma once
-
-#include "Grain.h"
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ReferenceCountedBuffer.h"
+#include "Grain.h"
 
 
 //==============================================================================
@@ -68,22 +65,9 @@ public:
     void checkForPathToOpen();
     void checkForBuffersToFree();
     
-    
-    // Utility
-    int wrap(int val, const int lo, const int hi);
-    
 
 
     String chosenPath;  //!< file chosen to open
-    
-    double sampleRate;
-    long long int time;
-    
-    Array<Grain> grainStack;
-    
-    // Parameters
-    // Main Grain Parameters:
-    AudioParameterFloat* positionParam;
     
     
     
@@ -92,8 +76,12 @@ private:
     /** private members declaration */
     AudioFormatManager formatManager;
     ReferenceCountedBuffer::Ptr fileBuffer;
-    int filePosition;   //!< read pointer of the buffer storing the audio file content
+//    int filePosition;   //!< read pointer of the buffer storing the audio file content
+    
+    long long int time;
 
+    Grain grain;
+    Array<Grain> grainStack;
 
     /** private functions declaration */
     void loadAudioFile(String);

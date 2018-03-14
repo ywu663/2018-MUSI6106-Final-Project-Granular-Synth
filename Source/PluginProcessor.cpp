@@ -23,16 +23,14 @@ GranularSynthAudioProcessor::GranularSynthAudioProcessor()
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
                        ),
-        Thread("scheduling thread"),
-        positionParam(nullptr)
-
+        Thread("scheduling thread")
 #endif
 {
-    addParameter(positionParam = new AudioParameterFloat("pos", "Position", 0.0f, 1.0f, 0.5f));
     
     time = 0;
-
+    grainStack.add(Grain(88200, 44100, 0));
     formatManager.registerBasicFormats();
+    startThread();
 }
 
 GranularSynthAudioProcessor::~GranularSynthAudioProcessor()
@@ -138,40 +136,32 @@ bool GranularSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& lay
 
 void GranularSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
-    ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
-    
-
     ReferenceCountedBuffer::Ptr retainedBuffer(fileBuffer);
+    /** if no file opened */
     if (retainedBuffer == nullptr) return;
 
+    AudioSampleBuffer* currentBuffer = retainedBuffer->getAudioSampleBuffer();
+    
     const int numSamplesInBlock = buffer.getNumSamples();
     const int numSamplesInFile = fileBuffer->getAudioSampleBuffer()->getNumSamples();
     
+    /** define local thread for thread safe */
     const Array<Grain> localStack = grainStack;
 
-    
-    AudioSampleBuffer* currentBuffer = retainedBuffer->getAudioSampleBuffer();
-
     /** audio processing */
-    for (int sample = 0; sample < numSamplesInBlock; sample++) {
-        for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
-            float* outputData = buffer.getWritePointer(channel);
-            const float* fileData = currentBuffer->getReadPointer(channel % currentBuffer->getNumChannels());
-            outputData[sample] = fileData[filePosition];
+    for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); i++) {
+        buffer.clear(i, 0, numSamplesInBlock);
+    }
+    for (int s = 0; s < numSamplesInBlock; s++) {
+//        grain.process(buffer, *currentBuffer, buffer.getNumChannels(), numSamplesInBlock, numSamplesInFile, time);
+        for (int i = 0; i < localStack.size(); i++) {
+            if (localStack[1].onset < time) {
+                if (time < (localStack[i].onset + localStack[i].length)) {
+                    localStack[i].process(buffer, *currentBuffer, buffer.getNumChannels(), numSamplesInBlock, numSamplesInFile, time);
+                }
+            }
         }
-
-        if (filePosition < numSamplesInFile) {
-            filePosition++;
-        }
-        else
-        {
-            filePosition = 0;
-        }
+        time++;
     }
 }
 
@@ -199,7 +189,7 @@ void GranularSynthAudioProcessor::setStateInformation (const void* data, int siz
 void GranularSynthAudioProcessor::loadAudioFile(String path)
 {
 
-    filePosition = 0;
+//    filePosition = 0;
     const File file(path);
     if (file.exists()) {
         ScopedPointer<AudioFormatReader> reader(formatManager.createReaderFor(file));
@@ -218,16 +208,6 @@ void GranularSynthAudioProcessor::loadAudioFile(String path)
     }
 }
 
-int GranularSynthAudioProcessor::wrap(int val, const int low, const int high)
-{
-    int range_size = high - low + 1;
-    
-    if (val < low)
-        val += range_size * ((low - val) / range_size + 1);
-    
-    return low + (val - low) % range_size;
-}
-
 
 //==============================================================================
 /** thread stuffs */
@@ -237,40 +217,38 @@ void GranularSynthAudioProcessor::run()
         checkForPathToOpen();
         checkForBuffersToFree();
         
-        // delete grains
-        if( grainStack.size() > 0){
-            for (int i=grainStack.size() - 1; i >= 0; --i) {
-                // check if the grain has ended
+        int dur = 200;
+        
+        std::cout << "stack size: " << grainStack.size() << std::endl;
+        if (grainStack.size() > 0) {
+            for (int i = grainStack.size() - 1; i >= 0; --i) {
                 long long int grainEnd = grainStack[i].onset + grainStack[i].length;
                 bool hasEnded = grainEnd < time;
-                
-                if(hasEnded) grainStack.remove(i); // [4]
+                if (hasEnded) {
+                    grainStack.remove(i);
+                }
+                std::cout << "hasEnded: " << hasEnded
+                << " grainEnd: " << grainEnd
+                << " time: " << time
+                << std::endl;
             }
         }
         
+        /** add grains */
+        if (fileBuffer != nullptr) {
+            int numSamples = fileBuffer->getAudioSampleBuffer()->getNumSamples();
+            int onset = 4000;
+            int length = 44100 * 4.5;
+            int startPosition = -1000;
+            grainStack.add(Grain(time + onset, length, -1000));
+            
+        }
         
-        wait(500);
+        
+        
+        wait(dur);
     }
-    int numSamples = fileBuffer->getAudioSampleBuffer()->getNumSamples();
     
-    int onset = 1000;
-    int length = 44100;
-    
-    int startPosition = *positionParam * numSamples;
-    startPosition = wrap(startPosition, 0, numSamples);
-    
-    float rate = 1;
-    
-    float envMid = 0.5;
-    float envSus = 0.5;
-    float envCurve = -3;
-    
-    //test
-    float ratio = 0.1;
-    float amp = 0.5;
-    
-    grainStack.add( Grain(onset, length, startPosition, envMid, envSus, envCurve, ratio, amp) );
-
 }
 
 void GranularSynthAudioProcessor::checkForPathToOpen()
