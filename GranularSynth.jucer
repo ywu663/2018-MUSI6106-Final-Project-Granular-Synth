@@ -13,6 +13,7 @@
       <FILE id="WwRjDP" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <FILE id="BhuM5H" name="ReferenceCountedBuffer.h" compile="0" resource="0"
             file="Source/ReferenceCountedBuffer.h"/>
+      <FILE id="ZnkaQr" name="Grain.h" compile="0" resource="0" file="Source/Grain.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>

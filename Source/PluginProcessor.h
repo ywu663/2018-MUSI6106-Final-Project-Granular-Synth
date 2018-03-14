@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ReferenceCountedBuffer.h"
+#include "Grain.h"
 
 
 //==============================================================================
@@ -62,8 +63,7 @@ public:
     /** thread stuffs */
     void run() override;
     void checkForPathToOpen();
-    void checkForBuffersToFree();
-    
+
 
 
     String chosenPath;  //!< file chosen to open
@@ -75,10 +75,15 @@ private:
     /** private members declaration */
     AudioFormatManager formatManager;
     ReferenceCountedBuffer::Ptr fileBuffer;
-    int filePosition;   //!< read pointer of the buffer storing the audio file content
+//    int filePosition;   //!< read pointer of the buffer storing the audio file content
+    
+    long long int time;
 
+    Grain grain;
+    Array<Grain> grainStack;
 
     /** private functions declaration */
     void loadAudioFile(String);
+    int wrap(int, const int, const int);
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranularSynthAudioProcessor)
 };
