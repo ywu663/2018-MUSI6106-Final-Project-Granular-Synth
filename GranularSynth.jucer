@@ -11,6 +11,8 @@
       <FILE id="f8u780" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="WwRjDP" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="BhuM5H" name="ReferenceCountedBuffer.h" compile="0" resource="0"
+            file="Source/ReferenceCountedBuffer.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
