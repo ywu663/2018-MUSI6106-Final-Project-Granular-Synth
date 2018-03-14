@@ -17,7 +17,8 @@
 //==============================================================================
 /**
 */
-class GranularSynthAudioProcessor  : public AudioProcessor
+class GranularSynthAudioProcessor  : public AudioProcessor,
+                                     public Thread
 {
 public:
     //==============================================================================
@@ -56,15 +57,27 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    //==============================================================================
+    /** thread stuffs */
+    void run() override;
+    void checkForPathToOpen();
+    void checkForBuffersToFree();
+    
 
+
+    String chosenPath;  //!< file chosen to open
+    
+    
+    
 private:
     //==============================================================================
     /** private members declaration */
     AudioFormatManager formatManager;
     ReferenceCountedBuffer::Ptr fileBuffer;
-//    AudioSampleBuffer fileBuffer;
-    int filePosition;
-    
+    int filePosition;   //!< read pointer of the buffer storing the audio file content
+
+
     /** private functions declaration */
     void loadAudioFile(String);
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranularSynthAudioProcessor)

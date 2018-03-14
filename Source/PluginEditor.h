@@ -17,12 +17,17 @@
 //==============================================================================
 /**
 */
-class GranularSynthAudioProcessorEditor  : public AudioProcessorEditor
+class GranularSynthAudioProcessorEditor  : public AudioProcessorEditor,
+                                           public Button::Listener
 {
 public:
     GranularSynthAudioProcessorEditor (GranularSynthAudioProcessor&);
     ~GranularSynthAudioProcessorEditor();
-
+    
+    //==============================================================================
+    /** button stuffs */
+    void buttonClicked(Button* button) override;
+    void openButtonClicked();
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
@@ -30,7 +35,7 @@ public:
 private:
     /** private members declaration */
     GranularSynthAudioProcessor& processor;
-
+    TextButton openButton;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranularSynthAudioProcessorEditor)
 };

@@ -16,6 +16,9 @@
 GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSynthAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
+    addAndMakeVisible(openButton);
+    openButton.setButtonText("Open...");
+    openButton.addListener(this);
     setSize (400, 300);
 }
 
@@ -36,11 +39,30 @@ void GranularSynthAudioProcessorEditor::paint (Graphics& g)
 
 void GranularSynthAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+    openButton.setBounds(10, 10, 120, 20);
 }
 
+//==============================================================================
+/** button stuffs */
+void GranularSynthAudioProcessorEditor::buttonClicked(Button* button)
+{
+    if (button == &openButton) {
+        openButtonClicked();
+    }
+}
 
+void GranularSynthAudioProcessorEditor::openButtonClicked()
+{
+    FileChooser chooser ("Select a File to open...", // 1
+                         File::nonexistent,
+                         "*.wav", "*.aif", "*.aiff");
+    
+    if(chooser.browseForFileToOpen()){  // 2
+        const File file (chooser.getResult());
+        String path (file.getFullPathName());
+        std::swap(processor.chosenPath, path);
+    }
+}
 
 
 
