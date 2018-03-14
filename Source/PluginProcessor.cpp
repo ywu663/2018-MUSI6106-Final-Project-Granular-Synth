@@ -25,6 +25,9 @@ GranularSynthAudioProcessor::GranularSynthAudioProcessor()
                        )
 #endif
 {
+    formatManager.registerBasicFormats();
+    String path = "/Users/yonglianghe/Desktop/Project.wav";
+    loadAudioFile(path);
 }
 
 GranularSynthAudioProcessor::~GranularSynthAudioProcessor()
@@ -96,8 +99,7 @@ void GranularSynthAudioProcessor::changeProgramName (int index, const String& ne
 //==============================================================================
 void GranularSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    
 }
 
 void GranularSynthAudioProcessor::releaseResources()
@@ -136,26 +138,26 @@ void GranularSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+    
+    const int numSamplesInBlock = buffer.getNumSamples();
+    const int numSamplesInFile = fileBuffer->getAudioSampleBuffer()->getNumSamples();
+    /** audio processing */
+    for (int sample = 0; sample < numSamplesInBlock; sample++) {
+        for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
+            float* outputData = buffer.getWritePointer(channel);
+            const float* fileData = fileBuffer->getAudioSampleBuffer()->getReadPointer(channel % (fileBuffer->getAudioSampleBuffer()->getNumChannels()));
+            outputData[sample] = fileData[filePosition];
+        }
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
+        if (filePosition < numSamplesInFile) {
+            filePosition++;
+        }
+        else
+        {
+            filePosition = 0;
+        }
     }
 }
 
@@ -183,6 +185,36 @@ void GranularSynthAudioProcessor::setStateInformation (const void* data, int siz
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
+
+//==============================================================================
+void GranularSynthAudioProcessor::loadAudioFile(String path)
+{
+
+    filePosition = 0;
+    const File file(path);
+    if (file.exists()) {
+        ScopedPointer<AudioFormatReader> reader(formatManager.createReaderFor(file));
+        ReferenceCountedBuffer::Ptr newBuffer = new ReferenceCountedBuffer(file.getFileName(),
+                                                                           reader->numChannels,
+                                                                           (int)reader->lengthInSamples);
+        if (reader != nullptr) {
+            reader->read(newBuffer->getAudioSampleBuffer(), 0, (int)reader->lengthInSamples, 0, true, true);
+            std::cout << "Samples in Buffer: " << newBuffer->getAudioSampleBuffer()->getNumSamples() << std::endl;
+            fileBuffer = newBuffer;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 //==============================================================================
 // This creates new instances of the plugin..

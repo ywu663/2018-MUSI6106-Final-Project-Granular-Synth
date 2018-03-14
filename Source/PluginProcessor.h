@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "ReferenceCountedBuffer.h"
 
 
 //==============================================================================
@@ -58,5 +59,13 @@ public:
 
 private:
     //==============================================================================
+    /** private members declaration */
+    AudioFormatManager formatManager;
+    ReferenceCountedBuffer::Ptr fileBuffer;
+//    AudioSampleBuffer fileBuffer;
+    int filePosition;
+    
+    /** private functions declaration */
+    void loadAudioFile(String);
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranularSynthAudioProcessor)
 };
