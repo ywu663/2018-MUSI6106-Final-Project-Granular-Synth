@@ -31,20 +31,14 @@ Error_t CGrain::destroyInstance(CGrain*& pCGrain)
     return kNoError;
 }
 
-CGrain::CGrain()
+CGrain::CGrain(): m_iOnset(0),m_iLength(1000),m_iStartPos(0),m_fTransRatio(1.0),m_fAmp(1.0)
 {
     reset();
-    m_iOnset = 0;
-    m_iLength = 1000;
-    m_iStartPos = 0;
-    m_fTransRatio = 1.0;
-    m_fAmp = 1.0;
-    
 }
 
 CGrain::~CGrain()
 {
-
+    reset();
 }
 
 Error_t CGrain::initInstance(long long int onset, int length, int startPos, float transRatio, float amp)
@@ -110,6 +104,7 @@ Error_t CGrain::process(AudioSampleBuffer& currentBlock, AudioSampleBuffer& file
         
         currentSample = interpolation(fractionPos, a, b, c, currentSample);
         currentSample = currentSample * m_fAmp * hanWindow(time);
+        cout<<"current samples"<<currentSample<<endl;
         
         channelData[time % blockNumSamples] += currentSample;
     }

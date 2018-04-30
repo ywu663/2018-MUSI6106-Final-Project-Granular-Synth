@@ -11,6 +11,10 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ErrorDef.h"
 #include <cmath>
+#include <iostream>
+
+using namespace std;
+
 
 #pragma once
 
