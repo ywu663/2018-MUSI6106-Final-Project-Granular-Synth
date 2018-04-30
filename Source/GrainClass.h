@@ -25,6 +25,7 @@ class CGrain
 {
 public:
     CGrain();
+    CGrain(long long int onset, int length, int startPos, float transRatio, float amp);
     ~CGrain();
     static Error_t createInstance(CGrain*& pCGrain);
     static Error_t destroyInstance(CGrain*& pCGrain);
@@ -36,7 +37,7 @@ public:
     long long int getOnset();
     int getLength();
     int getStartPos();
-
+    
 private:
     long long int m_iOnset;
     int m_iLength;

@@ -1,13 +1,9 @@
 /*
-  ==============================================================================
-
-    This file was auto-generated!
-
-    It contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
+ ==============================================================================
+ This file was auto-generated!
+ It contains the basic framework code for a JUCE plugin processor.
+ ==============================================================================
+ */
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
@@ -16,21 +12,21 @@
 //==============================================================================
 GranularSynthAudioProcessor::GranularSynthAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", AudioChannelSet::stereo(), true)
-                     #endif
-                       ),
-        Thread("scheduling thread")
+: AudioProcessor (BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+                  .withInput  ("Input",  AudioChannelSet::stereo(), true)
+#endif
+                  .withOutput ("Output", AudioChannelSet::stereo(), true)
+#endif
+                  ),
+Thread("scheduling thread")
 #endif
 {
     CGrain::createInstance(m_pCGrain);
     m_pCGrain->initInstance(88200, 44100, 0, 1, 1);
-    m_iTime = 0;
-    grainStack.add(m_pCGrain);
+    
+    time = 0;
     formatManager.registerBasicFormats();
     startThread();
 }
@@ -50,29 +46,29 @@ const String GranularSynthAudioProcessor::getName() const
 
 bool GranularSynthAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
+#if JucePlugin_WantsMidiInput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool GranularSynthAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
+#if JucePlugin_ProducesMidiOutput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool GranularSynthAudioProcessor::isMidiEffect() const
 {
-   #if JucePlugin_IsMidiEffect
+#if JucePlugin_IsMidiEffect
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 double GranularSynthAudioProcessor::getTailLengthSeconds() const
@@ -83,7 +79,7 @@ double GranularSynthAudioProcessor::getTailLengthSeconds() const
 int GranularSynthAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    // so this should be at least 1, even if you're not really implementing programs.
 }
 
 int GranularSynthAudioProcessor::getCurrentProgram()
@@ -117,24 +113,24 @@ void GranularSynthAudioProcessor::releaseResources()
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool GranularSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
+#if JucePlugin_IsMidiEffect
     ignoreUnused (layouts);
     return true;
-  #else
+#else
     // This is the place where you check if the layout is supported.
     // In this template code we only support mono or stereo.
     if (layouts.getMainOutputChannelSet() != AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != AudioChannelSet::stereo())
+        && layouts.getMainOutputChannelSet() != AudioChannelSet::stereo())
         return false;
-
+    
     // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
+#if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
-   #endif
-
+#endif
+    
     return true;
-  #endif
+#endif
 }
 #endif
 
@@ -143,7 +139,7 @@ void GranularSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     ReferenceCountedBuffer::Ptr retainedBuffer(fileBuffer);
     /** if no file opened */
     if (retainedBuffer == nullptr) return;
-
+    
     AudioSampleBuffer* currentBuffer = retainedBuffer->getAudioSampleBuffer();
     
     const int numSamplesInBlock = buffer.getNumSamples();
@@ -151,21 +147,20 @@ void GranularSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     
     /** define local thread for thread safe */
     const Array<CGrain*> localStack = grainStack;
-
+    
     /** audio processing */
     for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); i++) {
         buffer.clear(i, 0, numSamplesInBlock);
     }
     for (int s = 0; s < numSamplesInBlock; s++) {
-
-        for (int i = 0; i < localStack.size(); i++) {
-            if (localStack[1]->getOnset() < m_iTime) {
-                if (m_iTime < (localStack[i]->getOnset() + localStack[i]->getLength())) {
-                    localStack[i]->process(buffer, *currentBuffer, buffer.getNumChannels(), numSamplesInBlock, numSamplesInFile, m_iTime);
+        for(int i=0; i < localStack.size(); i++) {
+            if (localStack[i]->getOnset() < time) {
+                if (time < (localStack[i]->getOnset() + localStack[i]->getLength())) {
+                    localStack[i]->process(buffer, *currentBuffer, buffer.getNumChannels(), numSamplesInBlock, numSamplesInFile, time);
                 }
             }
         }
-        m_iTime++;
+        time++;
     }
 }
 
@@ -192,8 +187,8 @@ void GranularSynthAudioProcessor::setStateInformation (const void* data, int siz
 //==============================================================================
 void GranularSynthAudioProcessor::loadAudioFile(String path)
 {
-
-//    filePosition = 0;
+    
+    //    filePosition = 0;
     const File file(path);
     if (file.exists()) {
         ScopedPointer<AudioFormatReader> reader(formatManager.createReaderFor(file));
@@ -212,6 +207,14 @@ void GranularSynthAudioProcessor::loadAudioFile(String path)
     }
 }
 
+int GranularSynthAudioProcessor::wrap(int value, int lower, int upper)
+{
+    const int range = upper - lower + 1;
+    while (value < lower) {
+        value += range;
+    }
+    return lower + (value - lower) % range;
+}
 
 //==============================================================================
 /** thread stuffs */
@@ -219,38 +222,34 @@ void GranularSynthAudioProcessor::run()
 {
     while (!threadShouldExit()) {
         checkForPathToOpen();
-        checkForBuffersToFree();
         
-        int dur = 200;
+        int dur = 500;
         
         std::cout << "stack size: " << grainStack.size() << std::endl;
         if (grainStack.size() > 0) {
             for (int i = grainStack.size() - 1; i >= 0; i--) {
                 long long int grainEnd = grainStack[i]->getOnset() + grainStack[i]->getLength();
-                bool hasEnded = grainEnd < m_iTime;
+                bool hasEnded = grainEnd < time;
                 if (hasEnded) {
                     grainStack.remove(i);
                 }
                 std::cout << "hasEnded: " << hasEnded
                 << " grainEnd: " << grainEnd
-                << " time: " << m_iTime
+                << " time: " << time
                 << std::endl;
             }
         }
         
         /** add grains */
-        if (fileBuffer != nullptr) {
+        if(fileBuffer != nullptr){
             int numSamples = fileBuffer->getAudioSampleBuffer()->getNumSamples();
-            int onset = 4000;
-            int length = 44100;
-            int startPosition = -1000;
+            int onset = 50;
+            int length = 44100 * 0.5;
+            int startPosition  = 44100 * -500;
             m_pCGrain->reset();
-            m_pCGrain->initInstance(m_iTime + onset, length, startPosition, 1, 1);
+            m_pCGrain->initInstance(time + onset, length, wrap(startPosition, 0, numSamples), 1.5, 0.5);
             grainStack.add(m_pCGrain);
         }
-        
-        
-        
         wait(dur);
     }
     
@@ -264,22 +263,6 @@ void GranularSynthAudioProcessor::checkForPathToOpen()
         loadAudioFile(pathToOpen);
     }
 }
-
-void GranularSynthAudioProcessor::checkForBuffersToFree()
-{
-    
-}
-
-
-
-
-
-
-
-
-
-
-
 
 //==============================================================================
 // This creates new instances of the plugin..
