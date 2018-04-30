@@ -12,7 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ReferenceCountedBuffer.h"
-#include "Grain.h"
+#include "GrainClass.h"
 
 
 //==============================================================================
@@ -78,10 +78,10 @@ private:
     ReferenceCountedBuffer::Ptr fileBuffer;
 //    int filePosition;   //!< read pointer of the buffer storing the audio file content
     
-    long long int time;
+    long long int m_iTime;
 
-    Grain grain;
-    Array<Grain> grainStack;
+    CGrain *m_pCGrain = NULL;
+    Array<CGrain*> grainStack;
 
     /** private functions declaration */
     void loadAudioFile(String);

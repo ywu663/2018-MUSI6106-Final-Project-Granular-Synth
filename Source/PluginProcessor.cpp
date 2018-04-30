@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
@@ -26,15 +27,18 @@ GranularSynthAudioProcessor::GranularSynthAudioProcessor()
         Thread("scheduling thread")
 #endif
 {
-    
-    time = 0;
-    grainStack.add(Grain(88200, 44100, 0));
+    CGrain::createInstance(m_pCGrain);
+    m_pCGrain->initInstance(88200, 44100, 0, 1, 1);
+    m_iTime = 0;
+    grainStack.add(m_pCGrain);
     formatManager.registerBasicFormats();
     startThread();
 }
 
 GranularSynthAudioProcessor::~GranularSynthAudioProcessor()
 {
+    CGrain::destroyInstance(m_pCGrain);
+    m_pCGrain = NULL;
     stopThread(4000);
 }
 
@@ -146,22 +150,22 @@ void GranularSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     const int numSamplesInFile = fileBuffer->getAudioSampleBuffer()->getNumSamples();
     
     /** define local thread for thread safe */
-    const Array<Grain> localStack = grainStack;
+    const Array<CGrain*> localStack = grainStack;
 
     /** audio processing */
     for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); i++) {
         buffer.clear(i, 0, numSamplesInBlock);
     }
     for (int s = 0; s < numSamplesInBlock; s++) {
-//        grain.process(buffer, *currentBuffer, buffer.getNumChannels(), numSamplesInBlock, numSamplesInFile, time);
+
         for (int i = 0; i < localStack.size(); i++) {
-            if (localStack[1].onset < time) {
-                if (time < (localStack[i].onset + localStack[i].length)) {
-                    localStack[i].process(buffer, *currentBuffer, buffer.getNumChannels(), numSamplesInBlock, numSamplesInFile, time);
+            if (localStack[1]->getOnset() < m_iTime) {
+                if (m_iTime < (localStack[i]->getOnset() + localStack[i]->getLength())) {
+                    localStack[i]->process(buffer, *currentBuffer, buffer.getNumChannels(), numSamplesInBlock, numSamplesInFile, m_iTime);
                 }
             }
         }
-        time++;
+        m_iTime++;
     }
 }
 
@@ -221,15 +225,15 @@ void GranularSynthAudioProcessor::run()
         
         std::cout << "stack size: " << grainStack.size() << std::endl;
         if (grainStack.size() > 0) {
-            for (int i = grainStack.size() - 1; i >= 0; --i) {
-                long long int grainEnd = grainStack[i].onset + grainStack[i].length;
-                bool hasEnded = grainEnd < time;
+            for (int i = grainStack.size() - 1; i >= 0; i--) {
+                long long int grainEnd = grainStack[i]->getOnset() + grainStack[i]->getLength();
+                bool hasEnded = grainEnd < m_iTime;
                 if (hasEnded) {
                     grainStack.remove(i);
                 }
                 std::cout << "hasEnded: " << hasEnded
                 << " grainEnd: " << grainEnd
-                << " time: " << time
+                << " time: " << m_iTime
                 << std::endl;
             }
         }
@@ -238,10 +242,11 @@ void GranularSynthAudioProcessor::run()
         if (fileBuffer != nullptr) {
             int numSamples = fileBuffer->getAudioSampleBuffer()->getNumSamples();
             int onset = 4000;
-            int length = 44100 * 4.5;
+            int length = 44100;
             int startPosition = -1000;
-            grainStack.add(Grain(time + onset, length, -1000));
-            
+            m_pCGrain->reset();
+            m_pCGrain->initInstance(m_iTime + onset, length, startPosition, 1, 1);
+            grainStack.add(m_pCGrain);
         }
         
         
