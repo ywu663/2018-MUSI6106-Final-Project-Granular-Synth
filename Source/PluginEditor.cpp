@@ -48,6 +48,22 @@ void GranularSynthAudioProcessorEditor::buttonClicked(Button* button)
     }
 }
 
+/** slider stuffs */
+void GranularSynthAudioProcessorEditor::sliderValueChanged(Slider* slider)
+{
+//    if (!processor.getBypass())
+//    {
+//        if (slider == &modWidthSlider)
+//        {
+//            processor.setVibratoParam(CVibrato::kParamModWidthInS, (float)slider->getValue()/1000);
+//        }
+//        else if (slider == &modFreqSlider)
+//        {
+//            processor.setVibratoParam(CVibrato::kParamModFreqInHz, (float)slider->getValue());
+//        }
+//    }
+}
+
 void GranularSynthAudioProcessorEditor::openButtonClicked()
 {
     FileChooser chooser ("Select a File to open...", // 1

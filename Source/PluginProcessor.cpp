@@ -247,7 +247,7 @@ void GranularSynthAudioProcessor::run()
             int length = 44100 * 0.5;
             int startPosition  = 44100 * -500;
             m_pCGrain->reset();
-            m_pCGrain->initInstance(time + onset, length, wrap(startPosition, 0, numSamples), 1.5, 0.5);
+            m_pCGrain->initInstance(time + onset, length, wrap(startPosition, 0, numSamples), 1, 0.3);
             grainStack.add(m_pCGrain);
         }
         wait(dur);
