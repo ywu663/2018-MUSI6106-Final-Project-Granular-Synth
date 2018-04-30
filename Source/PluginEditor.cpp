@@ -16,7 +16,7 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     addAndMakeVisible(openButton);
     openButton.setButtonText("Open...");
     openButton.addListener(this);
-    setSize (800, 600);
+    setSize (900, 700);
     
     
     //position
@@ -107,25 +107,26 @@ void GranularSynthAudioProcessorEditor::resized()
 {
     int linespace = 40;
     const int border = 125;
+    int startHeight = 250;
     openButton.setBounds(getWidth() - 100, 45, 80, 20);
-    positionSlider.setBounds(10 + border, 45 + linespace, getWidth() - 20 - border, 20);
-    positionLabel.setBounds(10, 45 + linespace, 10 + border, 20);
-    randomPositionSlider.setBounds(10 + border, 45 + 2 * linespace, getWidth() - 20 - border, 20);
-    randomPositionLabel.setBounds(10, 45 + 2 * linespace, 10 + border, 20);
-    durationSlider.setBounds(10 + border, 45 + 3 * linespace, getWidth() - 20 - border, 20);
-    durationLabel.setBounds(10, 45 + 3 * linespace, 10 + border, 20);
-    randomDurationSlider.setBounds(10 + border, 45 + 4 * linespace, getWidth() - 20 - border, 20);
-    randomDurationLabel.setBounds(10, 45 + 4 * linespace, 10 + border, 20);
-    densitySlider.setBounds(10 + border, 45 + 5 * linespace, getWidth() - 20 - border, 20);
-    densityLabel.setBounds(10, 45 + 5 * linespace, 10 + border, 20);
-    randomDensitySlider.setBounds(10 + border, 45 + 6 * linespace, getWidth() - 20 - border, 20);
-    randomDensityLabel.setBounds(10, 45 + 6 * linespace, 10 + border, 20);
-    transposeSlider.setBounds(10 + border, 45 + 7 * linespace, getWidth() - 20 - border, 20);
-    transposeLabel.setBounds(10, 45 + 7 * linespace, 10 + border, 20);
-    randomTransposeSlider.setBounds(10 + border, 45 + 8 * linespace, getWidth() - 20 - border, 20);
-    randomTransposeLabel.setBounds(10, 45 + 8 * linespace, 10 + border, 20);
-    volumeSlider.setBounds(10 + border, 45 + 9 * linespace, getWidth() - 20 - border, 20);
-    volumeLabel.setBounds(10, 45 + 9 * linespace, 10 + border, 20);
+    positionSlider.setBounds(10 + border, startHeight + linespace, getWidth() - 20 - border, 20);
+    positionLabel.setBounds(10, startHeight + linespace, 10 + border, 20);
+    randomPositionSlider.setBounds(10 + border, startHeight + 2 * linespace, getWidth() - 20 - border, 20);
+    randomPositionLabel.setBounds(10, startHeight + 2 * linespace, 10 + border, 20);
+    durationSlider.setBounds(10 + border, startHeight + 3 * linespace, getWidth() - 20 - border, 20);
+    durationLabel.setBounds(10, startHeight + 3 * linespace, 10 + border, 20);
+    randomDurationSlider.setBounds(10 + border, startHeight + 4 * linespace, getWidth() - 20 - border, 20);
+    randomDurationLabel.setBounds(10, startHeight + 4 * linespace, 10 + border, 20);
+    densitySlider.setBounds(10 + border, startHeight + 5 * linespace, getWidth() - 20 - border, 20);
+    densityLabel.setBounds(10, startHeight + 5 * linespace, 10 + border, 20);
+    randomDensitySlider.setBounds(10 + border, startHeight + 6 * linespace, getWidth() - 20 - border, 20);
+    randomDensityLabel.setBounds(10, startHeight + 6 * linespace, 10 + border, 20);
+    transposeSlider.setBounds(10 + border, startHeight + 7 * linespace, getWidth() - 20 - border, 20);
+    transposeLabel.setBounds(10, startHeight + 7 * linespace, 10 + border, 20);
+    randomTransposeSlider.setBounds(10 + border, startHeight + 8 * linespace, getWidth() - 20 - border, 20);
+    randomTransposeLabel.setBounds(10, startHeight + 8 * linespace, 10 + border, 20);
+    volumeSlider.setBounds(10 + border, startHeight + 9 * linespace, getWidth() - 20 - border, 20);
+    volumeLabel.setBounds(10, startHeight + 9 * linespace, 10 + border, 20);
 }
 
 //==============================================================================
