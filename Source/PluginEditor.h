@@ -15,6 +15,7 @@
 /**
  */
 class GranularSynthAudioProcessorEditor  : public AudioProcessorEditor,
+public Slider::Listener,
 public Button::Listener
 {
 public:
