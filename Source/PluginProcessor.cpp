@@ -264,9 +264,90 @@ void GranularSynthAudioProcessor::checkForPathToOpen()
     }
 }
 
+float GranularSynthAudioProcessor::getPosition()
+{
+    return m_fPosition;
+}
+float GranularSynthAudioProcessor::getRandomPosition()
+{
+    return m_fRandomPosition;
+}
+float GranularSynthAudioProcessor::getDuration()
+{
+    return m_fDuration;
+}
+float GranularSynthAudioProcessor::getRandomDuration()
+{
+    return m_fRandomDuration;
+}
+float GranularSynthAudioProcessor::getDensity()
+{
+    return m_fDensity;
+}
+float GranularSynthAudioProcessor::getRandomDensity()
+{
+    return m_fRandomDensity;
+}
+float GranularSynthAudioProcessor::getTranspose()
+{
+    return m_fTranspose;
+}
+float GranularSynthAudioProcessor::getRandomTranspose()
+{
+    return m_fRandomTranspose;
+}
+float GranularSynthAudioProcessor::getVolume()
+{
+    return m_fVolume;
+}
+
+
+
+void GranularSynthAudioProcessor::setPosition(float position)
+{
+    m_fPosition = position;
+}
+void GranularSynthAudioProcessor::setRandomPosition(float randPosition)
+{
+    m_fRandomPosition = randPosition;
+}
+void GranularSynthAudioProcessor::setDuration(float duration)
+{
+    m_fDuration = duration;
+}
+void GranularSynthAudioProcessor::setRandomDuration(float randDuration)
+{
+    m_fRandomDuration = randDuration;
+}
+void GranularSynthAudioProcessor::setDensity(float density)
+{
+    m_fDensity = density;
+}
+void GranularSynthAudioProcessor::setRandomDensity(float randDensity)
+{
+    m_fRandomDensity = randDensity;
+}
+void GranularSynthAudioProcessor::setTranspose(float transpose)
+{
+    m_fTranspose = transpose;
+}
+void GranularSynthAudioProcessor::setRandomTranspose(float randTranspose)
+{
+    m_fRandomTranspose = randTranspose;
+}
+void GranularSynthAudioProcessor::setVolume(float volume)
+{
+    m_fVolume = volume;
+}
+
+
 //==============================================================================
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new GranularSynthAudioProcessor();
 }
+
+
+
+

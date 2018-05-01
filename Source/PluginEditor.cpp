@@ -141,17 +141,44 @@ void GranularSynthAudioProcessorEditor::buttonClicked(Button* button)
 /** slider stuffs */
 void GranularSynthAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
-//    if (!processor.getBypass())
-//    {
-//        if (slider == &modWidthSlider)
-//        {
-//            processor.setVibratoParam(CVibrato::kParamModWidthInS, (float)slider->getValue()/1000);
-//        }
-//        else if (slider == &modFreqSlider)
-//        {
-//            processor.setVibratoParam(CVibrato::kParamModFreqInHz, (float)slider->getValue());
-//        }
-//    }
+    
+    if (slider == &positionSlider)
+    {
+        processor.setPosition((float)slider->getValue());
+    }
+    else if (slider == &randomPositionSlider)
+    {
+        processor.setRandomPosition((float)slider->getValue());
+    }
+    else if (slider == &durationSlider)
+    {
+        processor.setDuration((float)slider->getValue());
+    }
+    else if (slider == &randomDurationSlider)
+    {
+        processor.setRandomDuration((float)slider->getValue());
+    }
+    else if (slider == &densitySlider)
+    {
+        processor.setDensity((float)slider->getValue());
+    }
+    else if (slider == &randomDensitySlider)
+    {
+        processor.setRandomDensity((float)slider->getValue());
+    }
+    else if (slider == &transposeSlider)
+    {
+        processor.setTranspose((float)slider->getValue());
+    }
+    else if (slider == &randomTransposeSlider)
+    {
+        processor.setRandomTranspose((float)slider->getValue());
+    }
+    else if (slider == &volumeSlider)
+    {
+        processor.setVolume((float)slider->getValue());
+    }
+
 }
 
 void GranularSynthAudioProcessorEditor::openButtonClicked()

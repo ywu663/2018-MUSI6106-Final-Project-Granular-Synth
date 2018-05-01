@@ -64,10 +64,28 @@ public:
     void run() override;
     void checkForPathToOpen();
     
-    
-    
     String chosenPath;  //!< file chosen to open
     
+    //helper functions
+    float getPosition();
+    float getRandomPosition();
+    float getDuration();
+    float getRandomDuration();
+    float getDensity();
+    float getRandomDensity();
+    float getTranspose();
+    float getRandomTranspose();
+    float getVolume();
+    
+    void setPosition(float position);
+    void setRandomPosition(float randPosition);
+    void setDuration(float duration);
+    void setRandomDuration(float randDuration);
+    void setDensity(float density);
+    void setRandomDensity(float randDensity);
+    void setTranspose(float transpose);
+    void setRandomTranspose(float randTranspose);
+    void setVolume(float volume);
     
     
 private:
@@ -89,5 +107,18 @@ private:
     /** private functions declaration */
     void loadAudioFile(String);
     int wrap(int, const int, const int);
+    
+    //grain parameters
+    float m_fPosition = 0.0;
+    float m_fRandomPosition = 0.0;
+    float m_fDuration = 0.0;
+    float m_fRandomDuration = 0.0;
+    float m_fDensity = 0.0;
+    float m_fRandomDensity = 0.0;
+    float m_fTranspose = 0.0;
+    float m_fRandomTranspose = 0.0;
+    float m_fVolume = 0.0;
+
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranularSynthAudioProcessor)
 };
