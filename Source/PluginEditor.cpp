@@ -11,8 +11,12 @@
 
 //==============================================================================
 GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSynthAudioProcessor& p)
-: AudioProcessorEditor (&p), processor (p)
+: AudioProcessorEditor (&p), processor (p), thumbnailCache (5), thumbnail (512, formatManager, thumbnailCache)
 {
+    //thumbnail
+    formatManager.registerBasicFormats();
+    thumbnail.addChangeListener(this);
+    
     addAndMakeVisible(openButton);
     openButton.setButtonText("Open...");
     openButton.addListener(this);
@@ -131,6 +135,50 @@ void GranularSynthAudioProcessorEditor::paint (Graphics& g)
     g.setFont (30.0f);
     g.drawFittedText ("Grains", 30, 30, 200, 20, Justification::centredLeft, 1);
     g.setFont (15.0f);
+    g.setColour(Colours::darkgrey);
+    g.fillRect(10 , 80, getWidth() - 20 , getHeight() - 100);
+    
+    
+    
+    Rectangle<int> thumbnailBounds (30, 90, getWidth() - 60, 170);
+    if (thumbnail.getNumChannels() == 0)
+        paintIfNoFileLoaded (g, thumbnailBounds);
+    else
+        paintIfFileLoaded (g, thumbnailBounds);
+}
+
+void GranularSynthAudioProcessorEditor::changeListenerCallback (ChangeBroadcaster* source)
+{
+    thumbnailChanged();
+}
+
+void GranularSynthAudioProcessorEditor::thumbnailChanged()
+{
+    repaint();
+}
+
+void GranularSynthAudioProcessorEditor::paintIfNoFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
+{
+    g.setColour (Colours::black);
+    g.fillRect (thumbnailBounds);
+    g.setColour (Colours::white);
+    g.drawFittedText ("No File Loaded", thumbnailBounds, Justification::centred, 1.0f);
+}
+
+void GranularSynthAudioProcessorEditor::paintIfFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
+{
+    if (thumbnail.getNumChannels() != 0)
+    {
+        cout<<"thumbnail successfully loaded"<<endl;
+    }
+    g.setColour (Colours::black);
+    g.fillRect (thumbnailBounds);
+    g.setColour (Colours::red);
+    thumbnail.drawChannels (g,
+                            thumbnailBounds,
+                            0.0,
+                            thumbnail.getTotalLength(),
+                            1.0f);                                  
 }
 
 void GranularSynthAudioProcessorEditor::resized()
@@ -222,14 +270,25 @@ void GranularSynthAudioProcessorEditor::sliderValueChanged(Slider* slider)
 
 void GranularSynthAudioProcessorEditor::openButtonClicked()
 {
-    FileChooser chooser ("Select a File to open...", // 1
+    FileChooser chooser ("Select a File to open...",
                          File::nonexistent,
-                         "*.wav", "*.aif", "*.aiff");
+                         "*.wav");
     
-    if(chooser.browseForFileToOpen()){  // 2
+    if(chooser.browseForFileToOpen())
+    {
         const File file (chooser.getResult());
+        auto* reader = formatManager.createReaderFor (file);
         String path (file.getFullPathName());
         std::swap(processor.chosenPath, path);
+        //thumbnail
+        if (reader != nullptr)
+        {
+            std::unique_ptr<AudioFormatReaderSource> newSource (new AudioFormatReaderSource (reader, true));
+            transportSource.setSource (newSource.get(), 0, nullptr, reader->sampleRate);
+            thumbnail.setSource (new FileInputSource (file));
+            readerSource.reset (newSource.release());
+
+        }
     }
 }
 

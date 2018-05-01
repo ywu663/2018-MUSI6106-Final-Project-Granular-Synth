@@ -38,7 +38,8 @@ using namespace std;
  */
 class GranularSynthAudioProcessorEditor  : public AudioProcessorEditor,
 public Slider::Listener,
-public Button::Listener
+public Button::Listener,
+public ChangeListener
 {
 public:
     GranularSynthAudioProcessorEditor (GranularSynthAudioProcessor&);
@@ -51,10 +52,15 @@ public:
     //==============================================================================
     /** sliders */
     void sliderValueChanged(Slider* slider) override;
-    
+    /** AudioThumbnail */
+    void thumbnailChanged();
+    void changeListenerCallback (ChangeBroadcaster* source) override;
     void paint (Graphics&) override;
+    void paintIfNoFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds);
+    void paintIfFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds);
     void resized() override;
     
+
     
     //automation
     AudioProcessorValueTreeState::SliderAttachment* sliderAttachPosition;
@@ -102,7 +108,12 @@ private:
     
     //list for sample selection
     
-    //waveform
+    //AudioThumbnail
+    AudioFormatManager formatManager;
+    std::unique_ptr<AudioFormatReaderSource> readerSource;
+    AudioTransportSource transportSource;
+    AudioThumbnailCache thumbnailCache;
+    AudioThumbnail thumbnail;                          
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranularSynthAudioProcessorEditor)
 };
