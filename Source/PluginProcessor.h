@@ -91,6 +91,10 @@ public:
     void setRandomTranspose(float randTranspose);
     void setVolume(float volume);
     
+    //automation
+    AudioProcessorValueTreeState treeState;
+    AudioProcessorValueTreeState parameters;
+    
     
 private:
     //==============================================================================
@@ -100,7 +104,7 @@ private:
     //    int filePosition;   //!< read pointer of the buffer storing the audio file content
     
     long long int time;
-    long long int nextGrainOnset;
+    long long int nextOnset;
 
     
     CGrain *m_pCGrain = NULL;
@@ -126,7 +130,17 @@ private:
     //processing parameters
     int midiNotes[128] = {};
     float m_fSampleRateInHz = 0.0;
-
+    
+    //initial plugin parameter values
+    const float m_fInitialPositionValue = 0.5;
+    const float m_fInitialRandomPositionValue = 0.0;
+    const float m_fInitialDurationValue = 0.2;
+    const float m_fInitialRandomDurationValue = 0.0;
+    const float m_fInitialDensityValue = 20.0;
+    const float m_fInitialRandomDensityValue = 0.0;
+    const float m_fInitialTransposeValue = 0;
+    const float m_fInitialRandomTransposeValue = 0.0;
+    const float m_fInitialVolumeValue = 0.5;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranularSynthAudioProcessor)
 };

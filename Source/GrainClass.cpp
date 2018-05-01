@@ -2,7 +2,6 @@
   ==============================================================================
 
     GrainClass.cpp
-    Created: 30 Apr 2018 3:24:00am
     Author:  Yi Wu
 
   ==============================================================================
@@ -81,11 +80,11 @@ float CGrain::hanWindow(long long int time)
 
 float CGrain::interpolation(float x, float y0, float y1, float y2, float y3)
 {
-    float c0 = y1;
-    float c1 = 0.5f * (y2 - y0);
-    float c2 = y0 - 2.5f * y1 + 2.f * y2 - 0.5f * y3;
-    float c3 = 0.5f * (y3 - y0) + 1.5f * (y1 - y2);
-    float interpolationVal = c0 + (c1 + (c2 + c3 * x) * x) * x;
+    float z0 = y1;
+    float z1 = 0.5f * (y2 - y0);
+    float z2 = y0 - 2.5f * y1 + 2.f * y2 - 0.5f * y3;
+    float z3 = 0.5f * (y3 - y0) + 1.5f * (y1 - y2);
+    float interpolationVal = z0 + (z1 + (z2 + z3 * x) * x) * x;
     return interpolationVal;
 }
 
@@ -93,9 +92,9 @@ Error_t CGrain::process(AudioSampleBuffer& currentBlock, AudioSampleBuffer& file
 {
 
     
-    for (int channel = 0; channel < numOfChannels; channel++) {
-        float* outputData = currentBlock.getWritePointer(channel);
-        const float* fileData = fileBuffer.getReadPointer(channel % fileBuffer.getNumChannels());
+    for (int c = 0; c < numOfChannels; c++) {
+        float* outputData = currentBlock.getWritePointer(c);
+        const float* fileData = fileBuffer.getReadPointer(c % fileBuffer.getNumChannels());
 
 //        long long int position = (time - m_iOnset) + m_iStartPos;
 //
@@ -110,13 +109,13 @@ Error_t CGrain::process(AudioSampleBuffer& currentBlock, AudioSampleBuffer& file
         
         int currentPos = iPosition + m_iStartPos;
         
-        float a = fileData[(currentPos - 3) % fileNumOfSamples];
-        float b = fileData[(currentPos - 2) % fileNumOfSamples];
-        float c = fileData[(currentPos - 1) % fileNumOfSamples];
+        float x = fileData[(currentPos - 3) % fileNumOfSamples];
+        float y = fileData[(currentPos - 2) % fileNumOfSamples];
+        float z = fileData[(currentPos - 1) % fileNumOfSamples];
         float currentSample = fileData[currentPos % fileNumOfSamples];
         
         
-        currentSample = interpolation(fractionPos, a, b, c, currentSample);
+        currentSample = interpolation(fractionPos, x, y, z, currentSample);
         currentSample = currentSample * m_fAmp * hanWindow(time);
         
         outputData[time % blockOfNumSamples] += currentSample;

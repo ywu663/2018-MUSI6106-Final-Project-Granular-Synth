@@ -20,15 +20,60 @@ GranularSynthAudioProcessor::GranularSynthAudioProcessor()
                   .withOutput ("Output", AudioChannelSet::stereo(), true)
 #endif
                   ),
-Thread("scheduling thread")
+Thread("scheduling thread"),
+treeState(*this, nullptr),
+parameters(*this, nullptr)
 #endif
 {
     CGrain::createInstance(m_pCGrain);
     m_pCGrain->reset();
     
+    m_fPosition = m_fInitialPositionValue;
+    m_fRandomPosition = m_fInitialRandomPositionValue;
+    m_fDuration = m_fInitialDurationValue;
+    m_fRandomDuration = m_fInitialRandomDurationValue;
+    m_fDensity = m_fInitialDensityValue;
+    m_fRandomDensity = m_fInitialRandomDensityValue;
+    m_fTranspose = m_fInitialTransposeValue;
+    m_fRandomTranspose = m_fInitialRandomTransposeValue;
+    m_fVolume = m_fInitialVolumeValue;
+    
     time = 0;
     formatManager.registerBasicFormats();
     startThread();
+    
+    //automation
+    NormalisableRange<float> positionRange(0.0001f, 1.0f);
+    treeState.createAndAddParameter(pos_ID, pos_NAME, pos_NAME, positionRange, m_fInitialPositionValue, nullptr, nullptr);
+
+    NormalisableRange<float> randPosRange(0.0f, 1.0f);
+    treeState.createAndAddParameter(randPos_ID, randPos_NAME, randPos_NAME, randPosRange, m_fInitialRandomPositionValue, nullptr, nullptr);
+
+    NormalisableRange<float> durationRange(0.0001f, 1.0f);
+    treeState.createAndAddParameter(dur_ID, dur_NAME, dur_NAME, durationRange, m_fInitialDurationValue, nullptr, nullptr);
+
+    NormalisableRange<float> randDurRange(0.0f, 1.0f);
+    treeState.createAndAddParameter(randDur_ID, randDur_NAME, randDur_NAME, randDurRange, m_fInitialRandomDurationValue, nullptr, nullptr);
+
+    NormalisableRange<float> densityRange(0.0001f, 80.0f);
+    treeState.createAndAddParameter(den_ID, den_NAME, den_NAME, densityRange, m_fInitialDensityValue, nullptr, nullptr);
+
+    NormalisableRange<float> randDenRange(0.0f, 1.0f);
+    treeState.createAndAddParameter(randDen_ID, randDen_NAME, randDen_NAME, randDenRange, m_fInitialRandomDensityValue, nullptr, nullptr);
+
+    NormalisableRange<float> transRange(-24.0f, 24.0f);
+    treeState.createAndAddParameter(trans_ID, trans_NAME, trans_NAME, transRange, m_fInitialTransposeValue, nullptr, nullptr);
+
+    NormalisableRange<float> randTransRange(-1.0f, 1.0f);
+    treeState.createAndAddParameter(randTrans_ID, randTrans_NAME, randTrans_NAME, randTransRange, m_fInitialRandomTransposeValue, nullptr, nullptr);
+
+    NormalisableRange<float> volRange(0.0f, 1.0f);
+    treeState.createAndAddParameter(vol_ID, vol_NAME, vol_NAME, volRange, m_fInitialVolumeValue, nullptr, nullptr);
+
+    
+    parameters.state = ValueTree("savedParams");
+    
+    
 }
 
 GranularSynthAudioProcessor::~GranularSynthAudioProcessor()
@@ -193,10 +238,21 @@ AudioProcessorEditor* GranularSynthAudioProcessor::createEditor()
 //==============================================================================
 void GranularSynthAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
+    ScopedPointer<XmlElement> xml (parameters.state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void GranularSynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
+    ScopedPointer<XmlElement> theParams (getXmlFromBinary(data, sizeInBytes));
+    
+    if (theParams != nullptr)
+    {
+        if (theParams -> hasTagName(parameters.state.getType()))
+        {
+            parameters.state = ValueTree::fromXml(*theParams);
+        }
+    }
 }
 
 //==============================================================================
@@ -237,45 +293,146 @@ int GranularSynthAudioProcessor::wrapUp(int value, int lower, int upper)
 /** thread stuffs */
 void GranularSynthAudioProcessor::run()
 {
-    while (!threadShouldExit()) {
+    
+//    while (!threadShouldExit()) {
+//        checkPathToOpen();
+//
+//        int dur = 500;
+//
+//        std::cout << "stack size: " << grainStack.size() << std::endl;
+//        if (grainStack.size() > 0) {
+//            for (int i = grainStack.size() - 1; i >= 0; i--) {
+//                long long int grainEnd = grainStack[i]->getOnset() + grainStack[i]->getLength();
+//                bool hasEnded = grainEnd < time;
+//                if (hasEnded) {
+//                    grainStack.remove(i);
+//                }
+//                std::cout << "hasEnded: " << hasEnded
+//                << " grainEnd: " << grainEnd
+//                << " time: " << time
+//                << std::endl;
+//            }
+//        }
+//
+//        /** add grains */
+//        if(fileBuffer != nullptr){
+//            int numSamples = fileBuffer->getAudioSampleBuffer()->getNumSamples();
+//            int onset = 50;
+//            int length = 44100 * 0.5;
+//            int startPosition  = 44100 * -500;
+//            m_pCGrain->reset();
+//            m_pCGrain->initInstance(time + onset, length, wrapUp(startPosition, 0, numSamples), 1, 0.3);
+//            grainStack.add(m_pCGrain);
+//        }
+//        wait(dur);
+//    }
+//
+
+    while (!threadShouldExit())
+    {
+        
         checkPathToOpen();
-
-        int dur = 500;
-
-        std::cout << "stack size: " << grainStack.size() << std::endl;
-        if (grainStack.size() > 0) {
+        
+        //clean up grain stack
+        if( grainStack.size() > 0)
+        {
             for (int i = grainStack.size() - 1; i >= 0; i--) {
-                long long int grainEnd = grainStack[i]->getOnset() + grainStack[i]->getLength();
-                bool hasEnded = grainEnd < time;
-                if (hasEnded) {
+                long long int ifgGrainEnds = grainStack[i]->getOnset() + grainStack[i]->getLength();
+                
+                if(ifgGrainEnds < time)
+                {
                     grainStack.remove(i);
                 }
-                std::cout << "hasEnded: " << hasEnded
-                << " grainEnd: " << grainEnd
-                << " time: " << time
-                << std::endl;
             }
         }
-
-        /** add grains */
-        if(fileBuffer != nullptr){
-            int numSamples = fileBuffer->getAudioSampleBuffer()->getNumSamples();
-            int onset = 50;
-            int length = 44100 * 0.5;
-            int startPosition  = 44100 * -500;
-            m_pCGrain->reset();
-            m_pCGrain->initInstance(time + onset, length, wrapUp(startPosition, 0, numSamples), 1, 0.3);
-            grainStack.add(m_pCGrain);
+        
+        Array<Array<int>> activedNotes;
+        
+        for(int i = 0; i < 128; i++)
+        {
+            if(midiNotes[i] > 0)
+            {
+                activedNotes.add(Array<int> {i, midiNotes[i]});
+            }
         }
-        wait(dur);
+        
+        if(fileBuffer != nullptr)
+        {
+            if(activedNotes.size() > 0)
+            {
+                cout<<"note pressed"<<endl;
+                // initialize nextOnset
+                if(nextOnset == 0)
+                {
+                    nextOnset = time;
+                }
+                
+                int numOfSamples = fileBuffer->getAudioSampleBuffer()->getNumSamples();
+                
+              
+                
+                /** duration */
+                
+                float duration = m_fDuration * (m_fRandomDuration * (Random::getSystemRandom().nextFloat()) + 1);
+                
+                /** onset */
+                
+                long long int onset = nextOnset;
+                
+                /** length */
+                
+                float density = m_fDensity * (m_fRandomDensity * (Random::getSystemRandom().nextFloat()) + 1);
+                int length = density * duration * m_fSampleRateInHz;
+                
+                /** start position */
+                
+                float randPosition = m_fRandomPosition * (Random::getSystemRandom().nextFloat());
+                int startPosition = (m_fPosition + randPosition) * numOfSamples;
+                startPosition = wrapUp(startPosition, 0, numOfSamples);
+                
+                /** transposition */
+                
+                // if multiple key has been pressed always count the first pressed key to doing transpose
+                float midiNote = activedNotes[0][0];
+                // C4 as the reference point for transpose
+                midiNote = (midiNote - 60.0f);
+                
+                float trans = m_fTranspose + midiNote;
+                trans = trans + (m_fRandomTranspose * (Random::getSystemRandom().nextFloat() * 24 - 12));
+                
+                float transRatio = pow (2.0f, trans / 12.0f);
+                
+                /** amplitude */
+                
+                float amp = m_fVolume;
+                
+                nextOnset = onset + (duration * m_fSampleRateInHz);
+                
+                m_pCGrain->reset();
+                
+                m_pCGrain->initInstance(onset, length, startPosition, transRatio, amp);
+                
+                cout<<onset<<" "<<length<<" "<<startPosition<<" "<<duration<<" "<<transRatio<<" "<<amp<<endl;
+                
+                grainStack.add(m_pCGrain);
+                                
+                wait(duration * 1000);
+            }
+            else
+            {
+                // reset nextOnset for no holding
+                nextOnset = 0;
+                wait(100);
+            }
+        }
+        else
+        {
+            wait(100);
+        }
+        
     }
-
     
 
-    
-    
-    
-    
     
     
 }
@@ -284,9 +441,9 @@ void GranularSynthAudioProcessor::processMidi(MidiBuffer& midiData)
 {
     MidiBuffer::Iterator i (midiData);
     MidiMessage message;
-    int counter = 0;
+    int samplePosition = 0;
 
-    while(i.getNextEvent(message, counter))
+    while(i.getNextEvent(message, samplePosition))
     {
         if(message.isNoteOn())
         {
@@ -299,7 +456,7 @@ void GranularSynthAudioProcessor::processMidi(MidiBuffer& midiData)
         }
         if(message.isAllNotesOff())
         {
-            for(int i = 0; i < 128; ++i)
+            for(int i = 0; i < 128; i++)
                 midiNotes[i] = 0;
         }
     }

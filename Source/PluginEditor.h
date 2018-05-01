@@ -14,6 +14,25 @@
 using namespace std;
 
 
+#define pos_ID "pos"
+#define pos_NAME "position"
+#define randPos_ID "randPos"
+#define randPos_NAME "rand pos"
+#define dur_ID "dur"
+#define dur_NAME "duration"
+#define randDur_ID "randDur"
+#define randDur_NAME "rand dur"
+#define den_ID "den"
+#define den_NAME "density"
+#define randDen_ID "randDen"
+#define randDen_NAME "rand den"
+#define trans_ID "trans"
+#define trans_NAME "transpose"
+#define randTrans_ID "randTrans"
+#define randTrans_NAME "rand trans"
+#define vol_ID "vol"
+#define vol_NAME "volume"
+
 //==============================================================================
 /**
  */
@@ -36,6 +55,17 @@ public:
     void paint (Graphics&) override;
     void resized() override;
     
+    
+    //automation
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachPosition;
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachRandomPosition;
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachDuration;
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachRandomDuration;
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachDensity;
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachRandomDensity;
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachTranspose;
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachRandomTrans;
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachVolume;
 
     
 private:

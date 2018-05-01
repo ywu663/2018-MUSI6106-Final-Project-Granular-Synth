@@ -19,6 +19,18 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     setSize (900, 700);
     
     
+    //Automation
+    sliderAttachPosition = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, pos_ID, positionSlider);
+    sliderAttachRandomPosition = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, randPos_ID, randomPositionSlider);
+    sliderAttachDuration = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, dur_ID, durationSlider);
+    sliderAttachRandomDuration = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, randDur_ID, randomDurationSlider);
+    sliderAttachDensity = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, den_ID, densitySlider);
+    sliderAttachRandomDensity = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, randDen_ID, randomDensitySlider);
+    sliderAttachTranspose = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, trans_ID, transposeSlider);
+    sliderAttachRandomTrans = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, randTrans_ID, randomTransposeSlider);
+    sliderAttachVolume = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, vol_ID, volumeSlider);
+
+    
     //position
     addAndMakeVisible(positionSlider);
     positionSlider.setRange(0.0001f, 1.0f, 0.01);
@@ -35,7 +47,7 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     randomPositionLabel.setText("Random Position", dontSendNotification);
     //duration
     addAndMakeVisible(durationSlider);
-    durationSlider.setRange(0.0001f, 4.0f, 0.001);
+    durationSlider.setRange(0.0001f, 1.0f, 0.001);
     durationSlider.addListener(this);
     addAndMakeVisible(durationLabel);
     durationLabel.setJustificationType(juce::Justification::centred);
@@ -63,14 +75,14 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     randomDensityLabel.setText("Random Density", dontSendNotification);
     //transpose
     addAndMakeVisible(transposeSlider);
-    transposeSlider.setRange(-48.0f, 48.0f, 0.01);
+    transposeSlider.setRange(-24.0f, 24.0f, 0.01);
     transposeSlider.addListener(this);
     addAndMakeVisible(transposeLabel);
     transposeLabel.setJustificationType(juce::Justification::centred);
     transposeLabel.setText("Transposition", dontSendNotification);
     //random transpose
     addAndMakeVisible(randomTransposeSlider);
-    randomTransposeSlider.setRange(0.0f, 24.0f, 0.001);
+    randomTransposeSlider.setRange(-1.0f, 1.0f, 0.001);
     randomTransposeSlider.addListener(this);
     addAndMakeVisible(randomTransposeLabel);
     randomTransposeLabel.setJustificationType(juce::Justification::centred);
@@ -89,6 +101,24 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
 
 GranularSynthAudioProcessorEditor::~GranularSynthAudioProcessorEditor()
 {
+    delete sliderAttachPosition;
+    sliderAttachPosition = NULL;
+    delete sliderAttachRandomPosition;
+    sliderAttachRandomPosition = NULL;
+    delete sliderAttachDuration;
+    sliderAttachDuration = NULL;
+    delete sliderAttachRandomDuration;
+    sliderAttachRandomDuration = NULL;
+    delete sliderAttachDensity;
+    sliderAttachDensity = NULL;
+    delete sliderAttachRandomDensity;
+    sliderAttachRandomDensity = NULL;
+    delete sliderAttachTranspose;
+    sliderAttachTranspose = NULL;
+    delete sliderAttachRandomTrans;
+    sliderAttachRandomTrans = NULL;
+    delete sliderAttachVolume;
+    sliderAttachVolume = NULL;
 }
 
 //==============================================================================
@@ -145,38 +175,47 @@ void GranularSynthAudioProcessorEditor::sliderValueChanged(Slider* slider)
     if (slider == &positionSlider)
     {
         processor.setPosition((float)slider->getValue());
+        cout<<"position: "<<processor.getPosition()<<endl;
     }
     else if (slider == &randomPositionSlider)
     {
         processor.setRandomPosition((float)slider->getValue());
+        cout<<"random position: "<<processor.getRandomPosition()<<endl;
     }
     else if (slider == &durationSlider)
     {
         processor.setDuration((float)slider->getValue());
+        cout<<"duration: "<<processor.getDuration()<<endl;
     }
     else if (slider == &randomDurationSlider)
     {
         processor.setRandomDuration((float)slider->getValue());
+        cout<<"random duration: "<<processor.getRandomDuration()<<endl;
     }
     else if (slider == &densitySlider)
     {
         processor.setDensity((float)slider->getValue());
+        cout<<"density: "<<processor.getDensity()<<endl;
     }
     else if (slider == &randomDensitySlider)
     {
         processor.setRandomDensity((float)slider->getValue());
+        cout<<"random density: "<<processor.getRandomDensity()<<endl;
     }
     else if (slider == &transposeSlider)
     {
         processor.setTranspose((float)slider->getValue());
+        cout<<"transpose: "<<processor.getTranspose()<<endl;
     }
     else if (slider == &randomTransposeSlider)
     {
         processor.setRandomTranspose((float)slider->getValue());
+        cout<<"random transpose: "<<processor.getRandomTranspose()<<endl;
     }
     else if (slider == &volumeSlider)
     {
         processor.setVolume((float)slider->getValue());
+        cout<<"volume: "<<processor.getVolume()<<endl;
     }
     
 }
