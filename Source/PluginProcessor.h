@@ -12,8 +12,11 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ReferenceCountedBuffer.h"
+#include <algorithm>
+#include <iostream>
 #include "GrainClass.h"
 
+using namespace std;
 
 //==============================================================================
 /**
@@ -46,6 +49,7 @@ public:
     bool acceptsMidi() const override;
     bool producesMidi() const override;
     bool isMidiEffect() const override;
+    void processMidi(MidiBuffer& midiData);
     double getTailLengthSeconds() const override;
     
     //==============================================================================
@@ -62,7 +66,7 @@ public:
     //==============================================================================
     /** thread stuffs */
     void run() override;
-    void checkForPathToOpen();
+    void checkPathToOpen();
     
     String chosenPath;  //!< file chosen to open
     
@@ -96,9 +100,8 @@ private:
     //    int filePosition;   //!< read pointer of the buffer storing the audio file content
     
     long long int time;
-    
-//    CGrain grain;
-//    Array<CGrain> grainStack;
+    long long int nextGrainOnset;
+
     
     CGrain *m_pCGrain = NULL;
     Array<CGrain*> grainStack;
@@ -106,7 +109,9 @@ private:
     
     /** private functions declaration */
     void loadAudioFile(String);
-    int wrap(int, const int, const int);
+    float clipProcess(float value, float lower, float upper);
+    int wrapUp(int value, int lower, int upper);
+    
     
     //grain parameters
     float m_fPosition = 0.0;
@@ -118,6 +123,9 @@ private:
     float m_fTranspose = 0.0;
     float m_fRandomTranspose = 0.0;
     float m_fVolume = 0.0;
+    //processing parameters
+    int midiNotes[128] = {};
+    float m_fSampleRateInHz = 0.0;
 
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranularSynthAudioProcessor)

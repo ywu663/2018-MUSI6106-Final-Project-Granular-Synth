@@ -24,7 +24,7 @@ Thread("scheduling thread")
 #endif
 {
     CGrain::createInstance(m_pCGrain);
-    m_pCGrain->initInstance(88200, 44100, 0, 1, 1);
+    m_pCGrain->reset();
     
     time = 0;
     formatManager.registerBasicFormats();
@@ -44,23 +44,7 @@ const String GranularSynthAudioProcessor::getName() const
     return JucePlugin_Name;
 }
 
-bool GranularSynthAudioProcessor::acceptsMidi() const
-{
-#if JucePlugin_WantsMidiInput
-    return true;
-#else
-    return false;
-#endif
-}
 
-bool GranularSynthAudioProcessor::producesMidi() const
-{
-#if JucePlugin_ProducesMidiOutput
-    return true;
-#else
-    return false;
-#endif
-}
 
 bool GranularSynthAudioProcessor::isMidiEffect() const
 {
@@ -103,11 +87,26 @@ void GranularSynthAudioProcessor::changeProgramName (int index, const String& ne
 //==============================================================================
 void GranularSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    
+    m_fSampleRateInHz = sampleRate;
 }
 
 void GranularSynthAudioProcessor::releaseResources()
 {
+}
+
+
+bool GranularSynthAudioProcessor::acceptsMidi() const
+{
+
+    return true;
+
+}
+
+bool GranularSynthAudioProcessor::producesMidi() const
+{
+
+    return false;
+
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -136,29 +135,45 @@ bool GranularSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& lay
 
 void GranularSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
-    ReferenceCountedBuffer::Ptr retainedBuffer(fileBuffer);
+    int numOfSamplesInBlock = buffer.getNumSamples();
+    processMidi(midiMessages);
+
+    for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); i++)
+        buffer.clear (i, 0, numOfSamplesInBlock);
+    
     /** if no file opened */
-    if (retainedBuffer == nullptr) return;
+    ReferenceCountedBuffer::Ptr retainedBuffer(fileBuffer);
+    if (retainedBuffer == nullptr)
+        return;
     
     AudioSampleBuffer* currentBuffer = retainedBuffer->getAudioSampleBuffer();
-    
-    const int numSamplesInBlock = buffer.getNumSamples();
     const int numSamplesInFile = fileBuffer->getAudioSampleBuffer()->getNumSamples();
     
     /** define local thread for thread safe */
     const Array<CGrain*> localStack = grainStack;
     
     /** audio processing */
-    for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); i++) {
-        buffer.clear(i, 0, numSamplesInBlock);
+    for (int i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); i++)
+    {
+        buffer.clear(i, 0, numOfSamplesInBlock);
     }
-    for (int s = 0; s < numSamplesInBlock; s++) {
-        for(int i=0; i < localStack.size(); i++) {
-            if (localStack[i]->getOnset() < time) {
-                if (time < (localStack[i]->getOnset() + localStack[i]->getLength())) {
-                    localStack[i]->process(buffer, *currentBuffer, buffer.getNumChannels(), numSamplesInBlock, numSamplesInFile, time);
+    for (int i = 0; i < numOfSamplesInBlock; i++)
+    {
+        for(int j = 0; j < localStack.size(); j++)
+        {
+            if (localStack[j]->getOnset() < time)
+            {
+                if (time < (localStack[j]->getOnset() + localStack[j]->getLength()))
+                {
+                    localStack[j]->process(buffer, *currentBuffer, buffer.getNumChannels(), numOfSamplesInBlock, numSamplesInFile, time);
                 }
             }
+        }
+        for(int c = 0; c < buffer.getNumChannels(); c++)
+        {
+            float* channelData = buffer.getWritePointer(c);
+            float currentSample = channelData[i];
+            channelData[i] = clipProcess(currentSample, -1.0, 1.0);
         }
         time++;
     }
@@ -195,36 +210,38 @@ void GranularSynthAudioProcessor::loadAudioFile(String path)
         ReferenceCountedBuffer::Ptr newBuffer = new ReferenceCountedBuffer(file.getFileName(),
                                                                            reader->numChannels,
                                                                            (int)reader->lengthInSamples);
-        if (newBuffer == nullptr) {
-            std::cout << "the referenceCountedBuffer is empty!" << std::endl;
-            return;
-        }
         if (reader != nullptr) {
             reader->read(newBuffer->getAudioSampleBuffer(), 0, (int)reader->lengthInSamples, 0, true, true);
-            std::cout << "Samples in Buffer: " << newBuffer->getAudioSampleBuffer()->getNumSamples() << std::endl;
             fileBuffer = newBuffer;
         }
     }
 }
 
-int GranularSynthAudioProcessor::wrap(int value, int lower, int upper)
+float GranularSynthAudioProcessor::clipProcess(float value, float lower, float upper)
 {
-    const int range = upper - lower + 1;
-    while (value < lower) {
-        value += range;
-    }
-    return lower + (value - lower) % range;
+    float min = std::min(value, upper);
+    return std::max(min, lower);
 }
+
+int GranularSynthAudioProcessor::wrapUp(int value, int lower, int upper)
+{
+    while (value < lower)
+    {
+        value = value + (upper - lower + 1);
+    }
+    return lower + ((value - lower) % (upper - lower + 1));
+}
+
 
 //==============================================================================
 /** thread stuffs */
 void GranularSynthAudioProcessor::run()
 {
     while (!threadShouldExit()) {
-        checkForPathToOpen();
-        
+        checkPathToOpen();
+
         int dur = 500;
-        
+
         std::cout << "stack size: " << grainStack.size() << std::endl;
         if (grainStack.size() > 0) {
             for (int i = grainStack.size() - 1; i >= 0; i--) {
@@ -239,7 +256,7 @@ void GranularSynthAudioProcessor::run()
                 << std::endl;
             }
         }
-        
+
         /** add grains */
         if(fileBuffer != nullptr){
             int numSamples = fileBuffer->getAudioSampleBuffer()->getNumSamples();
@@ -247,15 +264,50 @@ void GranularSynthAudioProcessor::run()
             int length = 44100 * 0.5;
             int startPosition  = 44100 * -500;
             m_pCGrain->reset();
-            m_pCGrain->initInstance(time + onset, length, wrap(startPosition, 0, numSamples), 1, 0.3);
+            m_pCGrain->initInstance(time + onset, length, wrapUp(startPosition, 0, numSamples), 1, 0.3);
             grainStack.add(m_pCGrain);
         }
         wait(dur);
     }
+
+    
+
+    
+    
+    
+    
+    
     
 }
 
-void GranularSynthAudioProcessor::checkForPathToOpen()
+void GranularSynthAudioProcessor::processMidi(MidiBuffer& midiData)
+{
+    MidiBuffer::Iterator i (midiData);
+    MidiMessage message;
+    int counter = 0;
+
+    while(i.getNextEvent(message, counter))
+    {
+        if(message.isNoteOn())
+        {
+            midiNotes[message.getNoteNumber()] = message.getVelocity();
+            cout<<"nice!"<<endl;
+        }
+        if(message.isNoteOff())
+        {
+            midiNotes[message.getNoteNumber()] = 0;
+        }
+        if(message.isAllNotesOff())
+        {
+            for(int i = 0; i < 128; ++i)
+                midiNotes[i] = 0;
+        }
+    }
+}
+
+
+
+void GranularSynthAudioProcessor::checkPathToOpen()
 {
     String pathToOpen;
     std::swap(pathToOpen, chosenPath);
