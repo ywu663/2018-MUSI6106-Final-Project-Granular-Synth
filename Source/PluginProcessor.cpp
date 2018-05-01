@@ -25,9 +25,6 @@ treeState(*this, nullptr),
 parameters(*this, nullptr)
 #endif
 {
-    CGrain::createInstance(m_pCGrain);
-    m_pCGrain->reset();
-    
     m_fPosition = m_fInitialPositionValue;
     m_fRandomPosition = m_fInitialRandomPositionValue;
     m_fDuration = m_fInitialDurationValue;
@@ -208,17 +205,15 @@ void GranularSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
         {
             if (localStack[j]->getOnset() < time)
             {
-                if (time < (localStack[j]->getOnset() + localStack[j]->getLength()))
-                {
-                    localStack[j]->process(buffer, *currentBuffer, buffer.getNumChannels(), numOfSamplesInBlock, numSamplesInFile, time);
-                }
+                localStack[j]->process(buffer, *currentBuffer, buffer.getNumChannels(), numOfSamplesInBlock, numSamplesInFile, time);
+
             }
         }
         for(int c = 0; c < buffer.getNumChannels(); c++)
         {
             float* channelData = buffer.getWritePointer(c);
             float currentSample = channelData[i];
-            channelData[i] = clipProcess(currentSample, -1.0, 1.0);
+            channelData[i] = clipProcess(currentSample);
         }
         time++;
     }
@@ -261,22 +256,31 @@ void GranularSynthAudioProcessor::loadAudioFile(String path)
     
     //    filePosition = 0;
     const File file(path);
-    if (file.exists()) {
+    if (file.exists())
+    {
         ScopedPointer<AudioFormatReader> reader(formatManager.createReaderFor(file));
         ReferenceCountedBuffer::Ptr newBuffer = new ReferenceCountedBuffer(file.getFileName(),
                                                                            reader->numChannels,
                                                                            (int)reader->lengthInSamples);
-        if (reader != nullptr) {
+        if (reader != nullptr)
+        {
             reader->read(newBuffer->getAudioSampleBuffer(), 0, (int)reader->lengthInSamples, 0, true, true);
             fileBuffer = newBuffer;
         }
     }
 }
 
-float GranularSynthAudioProcessor::clipProcess(float value, float lower, float upper)
+float GranularSynthAudioProcessor::clipProcess(float value)
 {
-    float min = std::min(value, upper);
-    return std::max(min, lower);
+    if (value >= 1.0f)
+    {
+        value = 1.0f;
+    }
+    if (value <= -1.0f)
+    {
+        value = -1.0f;
+    }
+    return value;
 }
 
 int GranularSynthAudioProcessor::wrapUp(int value, int lower, int upper)
@@ -336,10 +340,11 @@ void GranularSynthAudioProcessor::run()
         //clean up grain stack
         if( grainStack.size() > 0)
         {
-            for (int i = grainStack.size() - 1; i >= 0; i--) {
-                long long int ifgGrainEnds = grainStack[i]->getOnset() + grainStack[i]->getLength();
+            for (int i = grainStack.size() - 1; i >= 0; i--)
+            {
+                long long int ifGrainEnds = grainStack[i]->getOnset() + grainStack[i]->getLength();
                 
-                if(ifgGrainEnds < time)
+                if(ifGrainEnds < time)
                 {
                     grainStack.remove(i);
                 }
@@ -408,7 +413,7 @@ void GranularSynthAudioProcessor::run()
                 
                 nextOnset = onset + (duration * m_fSampleRateInHz);
                 
-                m_pCGrain->reset();
+                CGrain::createInstance(m_pCGrain);
                 
                 m_pCGrain->initInstance(onset, length, startPosition, transRatio, amp);
                 

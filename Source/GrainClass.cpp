@@ -92,7 +92,8 @@ Error_t CGrain::process(AudioSampleBuffer& currentBlock, AudioSampleBuffer& file
 {
 
     
-    for (int c = 0; c < numOfChannels; c++) {
+    for (int c = 0; c < numOfChannels; c++)
+    {
         float* outputData = currentBlock.getWritePointer(c);
         const float* fileData = fileBuffer.getReadPointer(c % fileBuffer.getNumChannels());
 

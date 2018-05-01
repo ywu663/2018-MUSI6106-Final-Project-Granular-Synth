@@ -113,7 +113,7 @@ private:
     
     /** private functions declaration */
     void loadAudioFile(String);
-    float clipProcess(float value, float lower, float upper);
+    float clipProcess(float value);
     int wrapUp(int value, int lower, int upper);
     
     
