@@ -89,34 +89,11 @@ float CGrain::interpolation(float x, float y0, float y1, float y2, float y3)
     return interpolationVal;
 }
 
-Error_t CGrain::process(AudioSampleBuffer& currentBlock, AudioSampleBuffer& fileBuffer, int numChannels, int blockNumSamples, int fileNumSamples, long long int time)
+Error_t CGrain::process(AudioSampleBuffer& currentBlock, AudioSampleBuffer& fileBuffer, int numOfChannels, int blockOfNumSamples, int fileNumOfSamples, long long int time)
 {
-//    for (int channel = 0; channel < numChannels; channel++)
-//    {
-//
-//        float* outputData = currentBlock.getWritePointer(channel);
-//        const float* fileData = fileBuffer.getReadPointer(channel);
-//
-//        float fPosition = (int)((time - m_iOnset) * m_fTransRatio);
-//        int iPosition = (int)(std::ceil(fPosition));
-//
-//        float fractionPos = fPosition - iPosition;
-//
-//        int currentPos = iPosition + m_iStartPos;
-//
-//        float a = fileData[(currentPos - 3) % fileNumSamples];
-//        float b = fileData[(currentPos - 2) % fileNumSamples];
-//        float c = fileData[(currentPos - 1) % fileNumSamples];
-//        float currentSample = fileData[currentPos % fileNumSamples];
-//
-//
-//        currentSample = interpolation(fractionPos, a, b, c, currentSample);
-//        currentSample = currentSample * m_fAmp * hanWindow(time);
-//
-//        outputData[time % blockNumSamples] += currentSample;
-//    }
+
     
-    for (int channel = 0; channel < numChannels; channel++) {
+    for (int channel = 0; channel < numOfChannels; channel++) {
         float* outputData = currentBlock.getWritePointer(channel);
         const float* fileData = fileBuffer.getReadPointer(channel % fileBuffer.getNumChannels());
 
@@ -133,16 +110,16 @@ Error_t CGrain::process(AudioSampleBuffer& currentBlock, AudioSampleBuffer& file
         
         int currentPos = iPosition + m_iStartPos;
         
-        float a = fileData[(currentPos - 3) % fileNumSamples];
-        float b = fileData[(currentPos - 2) % fileNumSamples];
-        float c = fileData[(currentPos - 1) % fileNumSamples];
-        float currentSample = fileData[currentPos % fileNumSamples];
+        float a = fileData[(currentPos - 3) % fileNumOfSamples];
+        float b = fileData[(currentPos - 2) % fileNumOfSamples];
+        float c = fileData[(currentPos - 1) % fileNumOfSamples];
+        float currentSample = fileData[currentPos % fileNumOfSamples];
         
         
         currentSample = interpolation(fractionPos, a, b, c, currentSample);
         currentSample = currentSample * m_fAmp * hanWindow(time);
         
-        outputData[time % blockNumSamples] += currentSample;
+        outputData[time % blockOfNumSamples] += currentSample;
     }
     return kNoError;
 }

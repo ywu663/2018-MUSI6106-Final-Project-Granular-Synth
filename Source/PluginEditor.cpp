@@ -178,7 +178,7 @@ void GranularSynthAudioProcessorEditor::sliderValueChanged(Slider* slider)
     {
         processor.setVolume((float)slider->getValue());
     }
-
+    
 }
 
 void GranularSynthAudioProcessorEditor::openButtonClicked()

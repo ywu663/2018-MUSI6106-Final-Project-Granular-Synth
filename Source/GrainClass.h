@@ -33,7 +33,7 @@ public:
     Error_t reset();
     float hanWindow(long long int time);
     float interpolation(float x, float y0, float y1, float y2, float y3);
-    Error_t process (AudioSampleBuffer& currentBlock, AudioSampleBuffer& fileBuffer, int numChannels, int blockNumSamples, int fileNumSamples, long long int time);
+    Error_t process (AudioSampleBuffer& currentBlock, AudioSampleBuffer& fileBuffer, int numOfChannels, int blockNumOfSamples, int fileNumOfSamples, long long int time);
     long long int getOnset();
     int getLength();
     int getStartPos();
