@@ -10,3 +10,7 @@ Once the module path is configured, open up in your prefered Exporter: Xcode, et
 Once build is done in Exported, open up in your prefered DAW, load the samples you want and use MIDI input to trigger sounds.
 
 The default samples are under /GranularSynthSamples folder.
+
+Demo Video
+-----------------------------------
+<a href="https://www.dropbox.com/s/k966hk31lrr0oar/DEMO%20-%20THE%20RAIN.mp4?dl=0">LINK</a>
