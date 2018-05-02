@@ -25,7 +25,7 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     addAndMakeVisible(openButton);
     openButton.setButtonText("Open...");
     openButton.addListener(this);
-    setSize (900, 700);
+    setSize (900, 720);
     
     
     //Automation
@@ -38,6 +38,7 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     sliderAttachTranspose = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, trans_ID, transposeSlider);
     sliderAttachRandomTrans = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, randTrans_ID, randomTransposeSlider);
     sliderAttachVolume = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, vol_ID, volumeSlider);
+    sliderAttachReverb = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, reverb_ID, reverbSlider);
 
     
     //position
@@ -121,8 +122,15 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     addAndMakeVisible(volumeLabel);
     volumeLabel.setJustificationType(juce::Justification::centredLeft);
     volumeLabel.setText("Volume", dontSendNotification);
-    
-    
+    //reverb
+    addAndMakeVisible(reverbSlider);
+    reverbSlider.setRange(0.0f, 1.0f, 0.001);
+    reverbSlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    reverbSlider.setColour( 0x1001700 , Colour(39, 50, 56));
+    reverbSlider.addListener(this);
+    addAndMakeVisible(reverbLabel);
+    reverbLabel.setJustificationType(juce::Justification::centredLeft);
+    reverbLabel.setText("Reverb", dontSendNotification);
     
 }
 
@@ -146,6 +154,10 @@ GranularSynthAudioProcessorEditor::~GranularSynthAudioProcessorEditor()
     sliderAttachRandomTrans = NULL;
     delete sliderAttachVolume;
     sliderAttachVolume = NULL;
+    delete sliderAttachVolume;
+    sliderAttachVolume = NULL;
+    delete sliderAttachReverb;
+    sliderAttachReverb = NULL;
 }
 
 //==============================================================================
@@ -161,7 +173,7 @@ void GranularSynthAudioProcessorEditor::paint (Graphics& g)
     g.setFont (Font(15.0f, 0));
     g.drawFittedText ("Granular Texture Synthesizer", 225, 35, 200, 20, Justification::centredLeft, 1);
     g.setColour(Colour(77, 80, 87));
-    g.fillRoundedRectangle(10 , 80, getWidth() - 20 , getHeight() - 100, 5.0f);
+    g.fillRoundedRectangle(10 , 80, getWidth() - 20 , getHeight() - 90, 5.0f);
 
     
     
@@ -239,6 +251,8 @@ void GranularSynthAudioProcessorEditor::resized()
     randomTransposeLabel.setBounds(30, startHeight + 8 * linespace, 10 + border, 20);
     volumeSlider.setBounds(10 + border, startHeight + 9 * linespace, getWidth() - 35 - border, 20);
     volumeLabel.setBounds(30, startHeight + 9 * linespace, 10 + border, 20);
+    reverbSlider.setBounds(10 + border, startHeight + 10 * linespace, getWidth() - 35 - border, 20);
+    reverbLabel.setBounds(30, startHeight + 10 * linespace, 10 + border, 20);
 }
 
 void GranularSynthAudioProcessorEditor::timerCallback()
@@ -306,6 +320,11 @@ void GranularSynthAudioProcessorEditor::sliderValueChanged(Slider* slider)
     {
         processor.setVolume((float)slider->getValue());
         cout<<"volume: "<<processor.getVolume()<<endl;
+    }
+    else if (slider == &reverbSlider)
+    {
+        processor.setReverb((float)slider->getValue());
+        cout<<"reverb: "<<processor.getReverb()<<endl;
     }
     
 }

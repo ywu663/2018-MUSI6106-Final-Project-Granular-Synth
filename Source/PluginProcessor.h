@@ -80,6 +80,7 @@ public:
     float getTranspose();
     float getRandomTranspose();
     float getVolume();
+    float getReverb();
     
     void setPosition(float position);
     void setRandomPosition(float randPosition);
@@ -90,6 +91,7 @@ public:
     void setTranspose(float transpose);
     void setRandomTranspose(float randTranspose);
     void setVolume(float volume);
+    void setReverb(float reverb);
     
     //automation
     AudioProcessorValueTreeState treeState;
@@ -109,6 +111,11 @@ private:
     
     CGrain *m_pCGrain = NULL;
     Array<CGrain*> grainStack;
+    //reverb
+    juce::Reverb* m_pReverb = 0;
+    juce::Reverb::Parameters m_ReverbParams;
+    float m_fReverbWet = 0.0;
+    
     
     
     /** private functions declaration */
@@ -137,13 +144,14 @@ private:
     //initial plugin parameter values
     const float m_fInitialPositionValue = 0.5;
     const float m_fInitialRandomPositionValue = 0.0;
-    const float m_fInitialDurationValue = 0.2;
+    const float m_fInitialDurationValue = 0.25;
     const float m_fInitialRandomDurationValue = 0.0;
     const float m_fInitialDensityValue = 10.0;
     const float m_fInitialRandomDensityValue = 0.0;
     const float m_fInitialTransposeValue = 0;
     const float m_fInitialRandomTransposeValue = 0.0;
     const float m_fInitialVolumeValue = 0.5;
+    const float m_fInitialReverbValue = 0.2;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranularSynthAudioProcessor)
 };

@@ -34,6 +34,7 @@ parameters(*this, nullptr)
     m_fTranspose = m_fInitialTransposeValue;
     m_fRandomTranspose = m_fInitialRandomTransposeValue;
     m_fVolume = m_fInitialVolumeValue;
+    m_fReverbWet = m_fInitialReverbValue;
     
     time = 0;
     formatManager.registerBasicFormats();
@@ -66,6 +67,9 @@ parameters(*this, nullptr)
 
     NormalisableRange<float> volRange(0.0f, 1.0f);
     treeState.createAndAddParameter(vol_ID, vol_NAME, vol_NAME, volRange, m_fInitialVolumeValue, nullptr, nullptr);
+    
+    NormalisableRange<float> reverbRange(0.0f, 1.0f);
+    treeState.createAndAddParameter(reverb_ID, reverb_NAME, reverb_NAME, reverbRange, m_fReverbWet, nullptr, nullptr);
 
     
     parameters.state = ValueTree("savedParams");
@@ -77,6 +81,9 @@ GranularSynthAudioProcessor::~GranularSynthAudioProcessor()
 {
     CGrain::destroyInstance(m_pCGrain);
     m_pCGrain = NULL;
+    delete m_pReverb;
+    m_pReverb = NULL;
+    m_ReverbParams = {};
     stopThread(4000);
 }
 
@@ -130,10 +137,13 @@ void GranularSynthAudioProcessor::changeProgramName (int index, const String& ne
 void GranularSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     m_fSampleRateInHz = sampleRate;
+    m_pReverb = new juce::Reverb();
+    m_pReverb->setSampleRate(m_fSampleRateInHz);
 }
 
 void GranularSynthAudioProcessor::releaseResources()
 {
+    m_pReverb->reset();
 }
 
 
@@ -217,6 +227,11 @@ void GranularSynthAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
         }
         time++;
     }
+    m_ReverbParams = m_pReverb->getParameters();
+    m_ReverbParams.dryLevel = 1.0f - m_fReverbWet;
+    m_ReverbParams.wetLevel = m_fReverbWet;
+    m_pReverb->setParameters(m_ReverbParams);
+    m_pReverb->processStereo(buffer.getWritePointer(0), buffer.getWritePointer(1), numOfSamplesInBlock);
 }
 
 //==============================================================================
@@ -516,6 +531,10 @@ float GranularSynthAudioProcessor::getVolume()
 {
     return m_fVolume;
 }
+float GranularSynthAudioProcessor::getReverb()
+{
+    return m_fReverbWet;
+}
 
 
 
@@ -555,6 +574,10 @@ void GranularSynthAudioProcessor::setRandomTranspose(float randTranspose)
 void GranularSynthAudioProcessor::setVolume(float volume)
 {
     m_fVolume = volume;
+}
+void GranularSynthAudioProcessor::setReverb(float reverb)
+{
+    m_fReverbWet = reverb;
 }
 
 

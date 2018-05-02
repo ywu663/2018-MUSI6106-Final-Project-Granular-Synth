@@ -32,6 +32,8 @@ using namespace std;
 #define randTrans_NAME "rand trans"
 #define vol_ID "vol"
 #define vol_NAME "volume"
+#define reverb_ID "reverb"
+#define reverb_NAME "reverb"
 
 //==============================================================================
 /**
@@ -75,6 +77,7 @@ public:
     AudioProcessorValueTreeState::SliderAttachment* sliderAttachTranspose;
     AudioProcessorValueTreeState::SliderAttachment* sliderAttachRandomTrans;
     AudioProcessorValueTreeState::SliderAttachment* sliderAttachVolume;
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachReverb;
 
     
 private:
@@ -106,6 +109,9 @@ private:
     //volume
     Slider volumeSlider;
     Label volumeLabel;
+    //reverb
+    Slider reverbSlider;
+    Label reverbLabel;
     
     //plan to add more window choice to the grain other than han
     
