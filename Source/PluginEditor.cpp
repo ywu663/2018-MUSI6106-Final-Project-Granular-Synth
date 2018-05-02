@@ -153,9 +153,11 @@ void GranularSynthAudioProcessorEditor::paint (Graphics& g)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
     g.setColour (Colours::white);
     g.setFont (Font(30.0f, 1));
-    g.drawFittedText ("THE GRAINS", 30, 30, 200, 20, Justification::centredLeft, 1);
+    g.drawFittedText ("THE RAIN", 30, 30, 200, 20, Justification::centredLeft, 1);
     g.setFont (Font(15.0f, 1));
-    g.drawFittedText ("v1.0", 200, 35, 200, 20, Justification::centredLeft, 1);
+    g.drawFittedText ("v1.0", 165, 35, 200, 20, Justification::centredLeft, 1);
+    g.setFont (15.0f);
+    g.drawFittedText ("Granular Texture Synthesizer", 220, 35, 200, 20, Justification::centredLeft, 1);
     g.setColour(Colour(77, 80, 87));
     g.fillRoundedRectangle(10 , 80, getWidth() - 20 , getHeight() - 100, 5.0f);
     

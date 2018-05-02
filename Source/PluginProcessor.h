@@ -139,7 +139,7 @@ private:
     const float m_fInitialRandomPositionValue = 0.0;
     const float m_fInitialDurationValue = 0.2;
     const float m_fInitialRandomDurationValue = 0.0;
-    const float m_fInitialDensityValue = 20.0;
+    const float m_fInitialDensityValue = 10.0;
     const float m_fInitialRandomDensityValue = 0.0;
     const float m_fInitialTransposeValue = 0;
     const float m_fInitialRandomTransposeValue = 0.0;
