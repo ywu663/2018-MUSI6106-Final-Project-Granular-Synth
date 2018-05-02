@@ -75,8 +75,8 @@ public:
     float getRandomPosition();
     float getDuration();
     float getRandomDuration();
-    float getDensity();
-    float getRandomDensity();
+    float getRate();
+    float getRandomRate();
     float getTranspose();
     float getRandomTranspose();
     float getVolume();
@@ -86,8 +86,8 @@ public:
     void setRandomPosition(float randPosition);
     void setDuration(float duration);
     void setRandomDuration(float randDuration);
-    void setDensity(float density);
-    void setRandomDensity(float randDensity);
+    void setRate(float rate);
+    void setRandomRate(float randRate);
     void setTranspose(float transpose);
     void setRandomTranspose(float randTranspose);
     void setVolume(float volume);
@@ -129,8 +129,8 @@ private:
     float m_fRandomPosition = 0.0;
     float m_fDuration = 0.0;
     float m_fRandomDuration = 0.0;
-    float m_fDensity = 0.0;
-    float m_fRandomDensity = 0.0;
+    float m_fRate = 0.0;
+    float m_fRandomRate = 0.0;
     float m_fTranspose = 0.0;
     float m_fRandomTranspose = 0.0;
     float m_fVolume = 0.0;
@@ -146,8 +146,8 @@ private:
     const float m_fInitialRandomPositionValue = 0.0;
     const float m_fInitialDurationValue = 0.25;
     const float m_fInitialRandomDurationValue = 0.0;
-    const float m_fInitialDensityValue = 10.0;
-    const float m_fInitialRandomDensityValue = 0.0;
+    const float m_fInitialRateValue = 10.0;
+    const float m_fInitialRandomRateValue = 0.0;
     const float m_fInitialTransposeValue = 0;
     const float m_fInitialRandomTransposeValue = 0.0;
     const float m_fInitialVolumeValue = 0.5;

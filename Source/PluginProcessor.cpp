@@ -29,8 +29,8 @@ parameters(*this, nullptr)
     m_fRandomPosition = m_fInitialRandomPositionValue;
     m_fDuration = m_fInitialDurationValue;
     m_fRandomDuration = m_fInitialRandomDurationValue;
-    m_fDensity = m_fInitialDensityValue;
-    m_fRandomDensity = m_fInitialRandomDensityValue;
+    m_fRate = m_fInitialRateValue;
+    m_fRandomRate = m_fInitialRandomRateValue;
     m_fTranspose = m_fInitialTransposeValue;
     m_fRandomTranspose = m_fInitialRandomTransposeValue;
     m_fVolume = m_fInitialVolumeValue;
@@ -53,11 +53,11 @@ parameters(*this, nullptr)
     NormalisableRange<float> randDurRange(0.0f, 1.0f);
     treeState.createAndAddParameter(randDur_ID, randDur_NAME, randDur_NAME, randDurRange, m_fInitialRandomDurationValue, nullptr, nullptr);
 
-    NormalisableRange<float> densityRange(0.0001f, 80.0f);
-    treeState.createAndAddParameter(den_ID, den_NAME, den_NAME, densityRange, m_fInitialDensityValue, nullptr, nullptr);
+    NormalisableRange<float> rateRange(0.0001f, 80.0f);
+    treeState.createAndAddParameter(rate_ID, rate_NAME, rate_NAME, rateRange, m_fInitialRateValue, nullptr, nullptr);
 
-    NormalisableRange<float> randDenRange(0.0f, 1.0f);
-    treeState.createAndAddParameter(randDen_ID, randDen_NAME, randDen_NAME, randDenRange, m_fInitialRandomDensityValue, nullptr, nullptr);
+    NormalisableRange<float> randRateRange(0.0f, 1.0f);
+    treeState.createAndAddParameter(randRate_ID, randRate_NAME, randRate_NAME, randRateRange, m_fInitialRandomRateValue, nullptr, nullptr);
 
     NormalisableRange<float> transRange(-24.0f, 24.0f);
     treeState.createAndAddParameter(trans_ID, trans_NAME, trans_NAME, transRange, m_fInitialTransposeValue, nullptr, nullptr);
@@ -401,8 +401,8 @@ void GranularSynthAudioProcessor::run()
                 
                 /** length */
                 
-                float density = m_fDensity * (m_fRandomDensity * (Random::getSystemRandom().nextFloat()) + 1);
-                int length = density * duration * m_fSampleRateInHz;
+                float rate = m_fRate * (m_fRandomRate * (Random::getSystemRandom().nextFloat()) + 1);
+                int length = rate * duration * m_fSampleRateInHz;
                 
                 /** start position */
                 
@@ -511,13 +511,13 @@ float GranularSynthAudioProcessor::getRandomDuration()
 {
     return m_fRandomDuration;
 }
-float GranularSynthAudioProcessor::getDensity()
+float GranularSynthAudioProcessor::getRate()
 {
-    return m_fDensity;
+    return m_fRate;
 }
-float GranularSynthAudioProcessor::getRandomDensity()
+float GranularSynthAudioProcessor::getRandomRate()
 {
-    return m_fRandomDensity;
+    return m_fRandomRate;
 }
 float GranularSynthAudioProcessor::getTranspose()
 {
@@ -555,13 +555,13 @@ void GranularSynthAudioProcessor::setRandomDuration(float randDuration)
 {
     m_fRandomDuration = randDuration;
 }
-void GranularSynthAudioProcessor::setDensity(float density)
+void GranularSynthAudioProcessor::setRate(float rate)
 {
-    m_fDensity = density;
+    m_fRate = rate;
 }
-void GranularSynthAudioProcessor::setRandomDensity(float randDensity)
+void GranularSynthAudioProcessor::setRandomRate(float randRate)
 {
-    m_fRandomDensity = randDensity;
+    m_fRandomRate = randRate;
 }
 void GranularSynthAudioProcessor::setTranspose(float transpose)
 {

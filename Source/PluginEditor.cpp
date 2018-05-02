@@ -33,8 +33,8 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     sliderAttachRandomPosition = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, randPos_ID, randomPositionSlider);
     sliderAttachDuration = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, dur_ID, durationSlider);
     sliderAttachRandomDuration = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, randDur_ID, randomDurationSlider);
-    sliderAttachDensity = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, den_ID, densitySlider);
-    sliderAttachRandomDensity = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, randDen_ID, randomDensitySlider);
+    sliderAttachRate = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, rate_ID, rateSlider);
+    sliderAttachRandomRate = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, randRate_ID, randomRateSlider);
     sliderAttachTranspose = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, trans_ID, transposeSlider);
     sliderAttachRandomTrans = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, randTrans_ID, randomTransposeSlider);
     sliderAttachVolume = new AudioProcessorValueTreeState::SliderAttachment(processor.treeState, vol_ID, volumeSlider);
@@ -77,24 +77,24 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     addAndMakeVisible(randomDurationLabel);
     randomDurationLabel.setJustificationType(juce::Justification::centredLeft);
     randomDurationLabel.setText("Random Duration", dontSendNotification);
-    //density
-    addAndMakeVisible(densitySlider);
-    densitySlider.setRange(0.0001f, 80.0f, 0.001);
-    densitySlider.setColour( 0x1001500 , Colour(39, 50, 56));
-    densitySlider.setColour( 0x1001700 , Colour(39, 50, 56));
-    densitySlider.addListener(this);
-    addAndMakeVisible(densityLabel);
-    densityLabel.setJustificationType(juce::Justification::centredLeft);
-    densityLabel.setText("Density", dontSendNotification);
+    //rate
+    addAndMakeVisible(rateSlider);
+    rateSlider.setRange(0.0001f, 80.0f, 0.001);
+    rateSlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    rateSlider.setColour( 0x1001700 , Colour(39, 50, 56));
+    rateSlider.addListener(this);
+    addAndMakeVisible(rateLabel);
+    rateLabel.setJustificationType(juce::Justification::centredLeft);
+    rateLabel.setText("Rate", dontSendNotification);
     //random density
-    addAndMakeVisible(randomDensitySlider);
-    randomDensitySlider.setRange(0.0f, 1.0f, 0.001);
-    randomDensitySlider.setColour( 0x1001500 , Colour(39, 50, 56));
-    randomDensitySlider.setColour( 0x1001700 , Colour(39, 50, 56));
-    randomDensitySlider.addListener(this);
-    addAndMakeVisible(randomDensityLabel);
-    randomDensityLabel.setJustificationType(juce::Justification::centredLeft);
-    randomDensityLabel.setText("Random Density", dontSendNotification);
+    addAndMakeVisible(randomRateSlider);
+    randomRateSlider.setRange(0.0f, 1.0f, 0.001);
+    randomRateSlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    randomRateSlider.setColour( 0x1001700 , Colour(39, 50, 56));
+    randomRateSlider.addListener(this);
+    addAndMakeVisible(randomRateLabel);
+    randomRateLabel.setJustificationType(juce::Justification::centredLeft);
+    randomRateLabel.setText("Random Rate", dontSendNotification);
     //transpose
     addAndMakeVisible(transposeSlider);
     transposeSlider.setRange(-24.0f, 24.0f, 0.01);
@@ -144,10 +144,10 @@ GranularSynthAudioProcessorEditor::~GranularSynthAudioProcessorEditor()
     sliderAttachDuration = NULL;
     delete sliderAttachRandomDuration;
     sliderAttachRandomDuration = NULL;
-    delete sliderAttachDensity;
-    sliderAttachDensity = NULL;
-    delete sliderAttachRandomDensity;
-    sliderAttachRandomDensity = NULL;
+    delete sliderAttachRate;
+    sliderAttachRate = NULL;
+    delete sliderAttachRandomRate;
+    sliderAttachRandomRate = NULL;
     delete sliderAttachTranspose;
     sliderAttachTranspose = NULL;
     delete sliderAttachRandomTrans;
@@ -241,10 +241,10 @@ void GranularSynthAudioProcessorEditor::resized()
     durationLabel.setBounds(30, startHeight + 3 * linespace, 10 + border, 20);
     randomDurationSlider.setBounds(10 + border, startHeight + 4 * linespace, getWidth() - 35 - border, 20);
     randomDurationLabel.setBounds(30, startHeight + 4 * linespace, 10 + border, 20);
-    densitySlider.setBounds(10 + border, startHeight + 5 * linespace, getWidth() - 35 - border, 20);
-    densityLabel.setBounds(30, startHeight + 5 * linespace, 10 + border, 20);
-    randomDensitySlider.setBounds(10 + border, startHeight + 6 * linespace, getWidth() - 35 - border, 20);
-    randomDensityLabel.setBounds(30, startHeight + 6 * linespace, 10 + border, 20);
+    rateSlider.setBounds(10 + border, startHeight + 5 * linespace, getWidth() - 35 - border, 20);
+    rateLabel.setBounds(30, startHeight + 5 * linespace, 10 + border, 20);
+    randomRateSlider.setBounds(10 + border, startHeight + 6 * linespace, getWidth() - 35 - border, 20);
+    randomRateLabel.setBounds(30, startHeight + 6 * linespace, 10 + border, 20);
     transposeSlider.setBounds(10 + border, startHeight + 7 * linespace, getWidth() - 35 - border, 20);
     transposeLabel.setBounds(30, startHeight + 7 * linespace, 10 + border, 20);
     randomTransposeSlider.setBounds(10 + border, startHeight + 8 * linespace, getWidth() - 35 - border, 20);
@@ -296,15 +296,15 @@ void GranularSynthAudioProcessorEditor::sliderValueChanged(Slider* slider)
         processor.setRandomDuration((float)slider->getValue());
         cout<<"random duration: "<<processor.getRandomDuration()<<endl;
     }
-    else if (slider == &densitySlider)
+    else if (slider == &rateSlider)
     {
-        processor.setDensity((float)slider->getValue());
-        cout<<"density: "<<processor.getDensity()<<endl;
+        processor.setRate((float)slider->getValue());
+        cout<<"Rate: "<<processor.getRate()<<endl;
     }
-    else if (slider == &randomDensitySlider)
+    else if (slider == &randomRateSlider)
     {
-        processor.setRandomDensity((float)slider->getValue());
-        cout<<"random density: "<<processor.getRandomDensity()<<endl;
+        processor.setRandomRate((float)slider->getValue());
+        cout<<"random rate: "<<processor.getRandomRate()<<endl;
     }
     else if (slider == &transposeSlider)
     {

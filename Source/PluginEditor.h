@@ -22,10 +22,10 @@ using namespace std;
 #define dur_NAME "duration"
 #define randDur_ID "randDur"
 #define randDur_NAME "rand dur"
-#define den_ID "den"
-#define den_NAME "density"
-#define randDen_ID "randDen"
-#define randDen_NAME "rand den"
+#define rate_ID "rate"
+#define rate_NAME "rate"
+#define randRate_ID "randRate"
+#define randRate_NAME "rand rate"
 #define trans_ID "trans"
 #define trans_NAME "transpose"
 #define randTrans_ID "randTrans"
@@ -72,8 +72,8 @@ public:
     AudioProcessorValueTreeState::SliderAttachment* sliderAttachRandomPosition;
     AudioProcessorValueTreeState::SliderAttachment* sliderAttachDuration;
     AudioProcessorValueTreeState::SliderAttachment* sliderAttachRandomDuration;
-    AudioProcessorValueTreeState::SliderAttachment* sliderAttachDensity;
-    AudioProcessorValueTreeState::SliderAttachment* sliderAttachRandomDensity;
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachRate;
+    AudioProcessorValueTreeState::SliderAttachment* sliderAttachRandomRate;
     AudioProcessorValueTreeState::SliderAttachment* sliderAttachTranspose;
     AudioProcessorValueTreeState::SliderAttachment* sliderAttachRandomTrans;
     AudioProcessorValueTreeState::SliderAttachment* sliderAttachVolume;
@@ -96,11 +96,11 @@ private:
     Label durationLabel;
     Slider randomDurationSlider;
     Label randomDurationLabel;
-    //density
-    Slider densitySlider;
-    Label densityLabel;
-    Slider randomDensitySlider;
-    Label randomDensityLabel;
+    //rate
+    Slider rateSlider;
+    Label rateLabel;
+    Slider randomRateSlider;
+    Label randomRateLabel;
     //transpose
     Slider transposeSlider;
     Label transposeLabel;
