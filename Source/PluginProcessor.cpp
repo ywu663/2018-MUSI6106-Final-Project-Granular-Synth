@@ -412,7 +412,7 @@ void GranularSynthAudioProcessor::run()
                 
                 /** transposition */
                 
-                // if multiple key has been pressed always count the first pressed key to doing transpose
+                // if multiple key has been pressed always count the lowest pressed key to doing transpose
                 float midiNote = activedNotes[0][0];
                 // C4 as the reference point for transpose
                 midiNote = (midiNote - 60.0f);
