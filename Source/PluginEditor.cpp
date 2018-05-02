@@ -41,6 +41,8 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     //position
     addAndMakeVisible(positionSlider);
     positionSlider.setRange(0.0001f, 1.0f, 0.01);
+    positionSlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    positionSlider.setColour( 0x1001700 , Colour(39, 50, 56));
     positionSlider.addListener(this);
     addAndMakeVisible(positionLabel);
     positionLabel.setJustificationType(juce::Justification::centredLeft);
@@ -48,6 +50,8 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     //random position
     addAndMakeVisible(randomPositionSlider);
     randomPositionSlider.setRange(0.0f, 1.0f, 0.01);
+    randomPositionSlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    randomPositionSlider.setColour( 0x1001700 , Colour(39, 50, 56));
     randomPositionSlider.addListener(this);
     addAndMakeVisible(randomPositionLabel);
     randomPositionLabel.setJustificationType(juce::Justification::centredLeft);
@@ -55,6 +59,8 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     //duration
     addAndMakeVisible(durationSlider);
     durationSlider.setRange(0.0001f, 1.0f, 0.001);
+    durationSlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    durationSlider.setColour( 0x1001700 , Colour(39, 50, 56));
     durationSlider.addListener(this);
     addAndMakeVisible(durationLabel);
     durationLabel.setJustificationType(juce::Justification::centredLeft);
@@ -62,6 +68,8 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     //random duration
     addAndMakeVisible(randomDurationSlider);
     randomDurationSlider.setRange(0.0f, 1.0f, 0.001);
+    randomDurationSlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    randomDurationSlider.setColour( 0x1001700 , Colour(39, 50, 56));
     randomDurationSlider.addListener(this);
     addAndMakeVisible(randomDurationLabel);
     randomDurationLabel.setJustificationType(juce::Justification::centredLeft);
@@ -69,6 +77,8 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     //density
     addAndMakeVisible(densitySlider);
     densitySlider.setRange(0.0001f, 80.0f, 0.001);
+    densitySlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    densitySlider.setColour( 0x1001700 , Colour(39, 50, 56));
     densitySlider.addListener(this);
     addAndMakeVisible(densityLabel);
     densityLabel.setJustificationType(juce::Justification::centredLeft);
@@ -76,6 +86,8 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     //random density
     addAndMakeVisible(randomDensitySlider);
     randomDensitySlider.setRange(0.0f, 1.0f, 0.001);
+    randomDensitySlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    randomDensitySlider.setColour( 0x1001700 , Colour(39, 50, 56));
     randomDensitySlider.addListener(this);
     addAndMakeVisible(randomDensityLabel);
     randomDensityLabel.setJustificationType(juce::Justification::centredLeft);
@@ -83,6 +95,8 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     //transpose
     addAndMakeVisible(transposeSlider);
     transposeSlider.setRange(-24.0f, 24.0f, 0.01);
+    transposeSlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    transposeSlider.setColour( 0x1001700 , Colour(39, 50, 56));
     transposeSlider.addListener(this);
     addAndMakeVisible(transposeLabel);
     transposeLabel.setJustificationType(juce::Justification::centredLeft);
@@ -90,6 +104,8 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     //random transpose
     addAndMakeVisible(randomTransposeSlider);
     randomTransposeSlider.setRange(-1.0f, 1.0f, 0.001);
+    randomTransposeSlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    randomTransposeSlider.setColour( 0x1001700 , Colour(39, 50, 56));
     randomTransposeSlider.addListener(this);
     addAndMakeVisible(randomTransposeLabel);
     randomTransposeLabel.setJustificationType(juce::Justification::centredLeft);
@@ -97,6 +113,8 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     //volume
     addAndMakeVisible(volumeSlider);
     volumeSlider.setRange(0.0f, 1.0f, 0.001);
+    volumeSlider.setColour( 0x1001500 , Colour(39, 50, 56));
+    volumeSlider.setColour( 0x1001700 , Colour(39, 50, 56));
     volumeSlider.addListener(this);
     addAndMakeVisible(volumeLabel);
     volumeLabel.setJustificationType(juce::Justification::centredLeft);
@@ -134,11 +152,12 @@ void GranularSynthAudioProcessorEditor::paint (Graphics& g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
     g.setColour (Colours::white);
-    g.setFont (30.0f);
-    g.drawFittedText ("Grains", 30, 30, 200, 20, Justification::centredLeft, 1);
-    g.setFont (15.0f);
+    g.setFont (Font(30.0f, 1));
+    g.drawFittedText ("THE GRAINS", 30, 30, 200, 20, Justification::centredLeft, 1);
+    g.setFont (Font(15.0f, 1));
+    g.drawFittedText ("v1.0", 200, 35, 200, 20, Justification::centredLeft, 1);
     g.setColour(Colour(77, 80, 87));
-    g.fillRect(10 , 80, getWidth() - 20 , getHeight() - 100);
+    g.fillRoundedRectangle(10 , 80, getWidth() - 20 , getHeight() - 100, 5.0f);
     
     
     
@@ -167,7 +186,7 @@ void GranularSynthAudioProcessorEditor::thumbnailChanged()
 void GranularSynthAudioProcessorEditor::paintIfNoFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
 {
     g.setColour (Colour (24, 31, 34));
-    g.fillRect (thumbnailBounds);
+    g.fillRoundedRectangle(30, 100, getWidth() - 60, 180, 5.0f);
     g.setColour (Colours::white);
     g.drawFittedText ("No File Loaded", thumbnailBounds, Justification::centred, 1.0f);
 }
@@ -175,13 +194,13 @@ void GranularSynthAudioProcessorEditor::paintIfNoFileLoaded (Graphics& g, const 
 void GranularSynthAudioProcessorEditor::paintIfFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
 {
     g.setColour (Colour (24, 31, 34));
-    g.fillRect (thumbnailBounds);
-    g.setColour (Colour (49, 200, 222));
+    g.fillRoundedRectangle(30, 100, getWidth() - 60, 180, 5.0f);
+    g.setColour (Colour (228, 161, 97));
     thumbnail.drawChannels (g,
                             thumbnailBounds,
                             0.0,
                             thumbnail.getTotalLength(),
-                            1.0f);
+                            2.5f);
 }
 
 void GranularSynthAudioProcessorEditor::paintPlayHead (Graphics& g, const Rectangle<int>& thumbnailBounds)
