@@ -150,7 +150,7 @@ private:
     const float m_fInitialRandomRateValue = 0.0;
     const float m_fInitialTransposeValue = 0;
     const float m_fInitialRandomTransposeValue = 0.0;
-    const float m_fInitialVolumeValue = 0.5;
+    const float m_fInitialVolumeValue = 0.3;
     const float m_fInitialReverbValue = 0.2;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranularSynthAudioProcessor)
