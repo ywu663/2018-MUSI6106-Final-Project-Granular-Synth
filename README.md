@@ -1,4 +1,4 @@
-# 2018-MUSI6106-Final-Project-Granular-Synth
+# THE RAIN - Granular Texture Synthesizer
 
 ![alt text](https://github.com/ywu663/2018-MUSI6106-Final-Project-Granular-Synth/blob/master/assets/plugin-screenshot.png)
 
