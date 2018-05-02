@@ -13,6 +13,8 @@
 GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSynthAudioProcessor& p)
 : AudioProcessorEditor (&p), processor (p), thumbnailCache (5), thumbnail (256, formatManager, thumbnailCache)
 {
+    LookAndFeel::getDefaultLookAndFeel().setDefaultSansSerifTypefaceName ("Helvetica");
+    
     //timer
     startTimerHz(100);
     
@@ -155,12 +157,12 @@ void GranularSynthAudioProcessorEditor::paint (Graphics& g)
     g.setFont (Font(30.0f, 1));
     g.drawFittedText ("THE RAIN", 30, 30, 200, 20, Justification::centredLeft, 1);
     g.setFont (Font(15.0f, 1));
-    g.drawFittedText ("v1.0", 165, 35, 200, 20, Justification::centredLeft, 1);
-    g.setFont (15.0f);
-    g.drawFittedText ("Granular Texture Synthesizer", 220, 35, 200, 20, Justification::centredLeft, 1);
+    g.drawFittedText ("v1.0", 180, 35, 200, 20, Justification::centredLeft, 1);
+    g.setFont (Font(15.0f, 0));
+    g.drawFittedText ("Granular Texture Synthesizer", 225, 35, 200, 20, Justification::centredLeft, 1);
     g.setColour(Colour(77, 80, 87));
     g.fillRoundedRectangle(10 , 80, getWidth() - 20 , getHeight() - 100, 5.0f);
-    
+
     
     
     Rectangle<int> thumbnailBounds (30, 100, getWidth() - 60, 180);
@@ -216,7 +218,7 @@ void GranularSynthAudioProcessorEditor::paintPlayHead (Graphics& g, const Rectan
 void GranularSynthAudioProcessorEditor::resized()
 {
     int linespace = 40;
-    const int border = 140;
+    const int border = 150;
     int startHeight = 270;
     openButton.setBounds(getWidth() - 100, 45, 80, 20);
     positionSlider.setBounds(10 + border, startHeight + linespace, getWidth() - 35 - border, 20);
