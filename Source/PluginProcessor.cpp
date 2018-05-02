@@ -415,12 +415,14 @@ void GranularSynthAudioProcessor::run()
                 
                 CGrain::createInstance(m_pCGrain);
                 
-                m_pCGrain->initInstance(onset, length, startPosition, transRatio, amp);
+                m_pCGrain->initInstance(onset + m_delay, length, startPosition, transRatio, amp);
                 
                 cout<<onset<<" "<<length<<" "<<startPosition<<" "<<duration<<" "<<transRatio<<" "<<amp<<endl;
                 
                 grainStack.add(m_pCGrain);
-                                
+                
+                duration = duration + m_delay/m_fSampleRateInHz;
+                
                 wait(duration * 1000);
             }
             else
@@ -514,6 +516,7 @@ float GranularSynthAudioProcessor::getVolume()
 {
     return m_fVolume;
 }
+
 
 
 

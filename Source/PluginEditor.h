@@ -39,6 +39,7 @@ using namespace std;
 class GranularSynthAudioProcessorEditor  : public AudioProcessorEditor,
 public Slider::Listener,
 public Button::Listener,
+public Timer,
 public ChangeListener
 {
 public:
@@ -55,9 +56,11 @@ public:
     /** AudioThumbnail */
     void thumbnailChanged();
     void changeListenerCallback (ChangeBroadcaster* source) override;
+    void timerCallback() override;
     void paint (Graphics&) override;
     void paintIfNoFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds);
     void paintIfFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds);
+    void paintPlayHead (Graphics& g, const Rectangle<int>& thumbnailBounds);
     void resized() override;
     
 

@@ -11,8 +11,11 @@
 
 //==============================================================================
 GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSynthAudioProcessor& p)
-: AudioProcessorEditor (&p), processor (p), thumbnailCache (5), thumbnail (512, formatManager, thumbnailCache)
+: AudioProcessorEditor (&p), processor (p), thumbnailCache (5), thumbnail (256, formatManager, thumbnailCache)
 {
+    //timer
+    startTimerHz(100);
+    
     //thumbnail
     formatManager.registerBasicFormats();
     thumbnail.addChangeListener(this);
@@ -40,63 +43,63 @@ GranularSynthAudioProcessorEditor::GranularSynthAudioProcessorEditor (GranularSy
     positionSlider.setRange(0.0001f, 1.0f, 0.01);
     positionSlider.addListener(this);
     addAndMakeVisible(positionLabel);
-    positionLabel.setJustificationType(juce::Justification::centred);
+    positionLabel.setJustificationType(juce::Justification::centredLeft);
     positionLabel.setText("Position", dontSendNotification);
     //random position
     addAndMakeVisible(randomPositionSlider);
     randomPositionSlider.setRange(0.0f, 1.0f, 0.01);
     randomPositionSlider.addListener(this);
     addAndMakeVisible(randomPositionLabel);
-    randomPositionLabel.setJustificationType(juce::Justification::centred);
+    randomPositionLabel.setJustificationType(juce::Justification::centredLeft);
     randomPositionLabel.setText("Random Position", dontSendNotification);
     //duration
     addAndMakeVisible(durationSlider);
     durationSlider.setRange(0.0001f, 1.0f, 0.001);
     durationSlider.addListener(this);
     addAndMakeVisible(durationLabel);
-    durationLabel.setJustificationType(juce::Justification::centred);
+    durationLabel.setJustificationType(juce::Justification::centredLeft);
     durationLabel.setText("Duration", dontSendNotification);
     //random duration
     addAndMakeVisible(randomDurationSlider);
     randomDurationSlider.setRange(0.0f, 1.0f, 0.001);
     randomDurationSlider.addListener(this);
     addAndMakeVisible(randomDurationLabel);
-    randomDurationLabel.setJustificationType(juce::Justification::centred);
+    randomDurationLabel.setJustificationType(juce::Justification::centredLeft);
     randomDurationLabel.setText("Random Duration", dontSendNotification);
     //density
     addAndMakeVisible(densitySlider);
     densitySlider.setRange(0.0001f, 80.0f, 0.001);
     densitySlider.addListener(this);
     addAndMakeVisible(densityLabel);
-    densityLabel.setJustificationType(juce::Justification::centred);
+    densityLabel.setJustificationType(juce::Justification::centredLeft);
     densityLabel.setText("Density", dontSendNotification);
     //random density
     addAndMakeVisible(randomDensitySlider);
     randomDensitySlider.setRange(0.0f, 1.0f, 0.001);
     randomDensitySlider.addListener(this);
     addAndMakeVisible(randomDensityLabel);
-    randomDensityLabel.setJustificationType(juce::Justification::centred);
+    randomDensityLabel.setJustificationType(juce::Justification::centredLeft);
     randomDensityLabel.setText("Random Density", dontSendNotification);
     //transpose
     addAndMakeVisible(transposeSlider);
     transposeSlider.setRange(-24.0f, 24.0f, 0.01);
     transposeSlider.addListener(this);
     addAndMakeVisible(transposeLabel);
-    transposeLabel.setJustificationType(juce::Justification::centred);
+    transposeLabel.setJustificationType(juce::Justification::centredLeft);
     transposeLabel.setText("Transposition", dontSendNotification);
     //random transpose
     addAndMakeVisible(randomTransposeSlider);
     randomTransposeSlider.setRange(-1.0f, 1.0f, 0.001);
     randomTransposeSlider.addListener(this);
     addAndMakeVisible(randomTransposeLabel);
-    randomTransposeLabel.setJustificationType(juce::Justification::centred);
+    randomTransposeLabel.setJustificationType(juce::Justification::centredLeft);
     randomTransposeLabel.setText("Random Trans", dontSendNotification);
     //volume
     addAndMakeVisible(volumeSlider);
     volumeSlider.setRange(0.0f, 1.0f, 0.001);
     volumeSlider.addListener(this);
     addAndMakeVisible(volumeLabel);
-    volumeLabel.setJustificationType(juce::Justification::centred);
+    volumeLabel.setJustificationType(juce::Justification::centredLeft);
     volumeLabel.setText("Volume", dontSendNotification);
     
     
@@ -130,21 +133,25 @@ void GranularSynthAudioProcessorEditor::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-    
     g.setColour (Colours::white);
     g.setFont (30.0f);
     g.drawFittedText ("Grains", 30, 30, 200, 20, Justification::centredLeft, 1);
     g.setFont (15.0f);
-    g.setColour(Colours::darkgrey);
+    g.setColour(Colour(77, 80, 87));
     g.fillRect(10 , 80, getWidth() - 20 , getHeight() - 100);
     
     
     
-    Rectangle<int> thumbnailBounds (30, 90, getWidth() - 60, 170);
+    Rectangle<int> thumbnailBounds (30, 100, getWidth() - 60, 180);
     if (thumbnail.getNumChannels() == 0)
         paintIfNoFileLoaded (g, thumbnailBounds);
     else
+    {
         paintIfFileLoaded (g, thumbnailBounds);
+        paintPlayHead (g, thumbnailBounds);
+    }
+    
+    
 }
 
 void GranularSynthAudioProcessorEditor::changeListenerCallback (ChangeBroadcaster* source)
@@ -159,7 +166,7 @@ void GranularSynthAudioProcessorEditor::thumbnailChanged()
 
 void GranularSynthAudioProcessorEditor::paintIfNoFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
 {
-    g.setColour (Colours::black);
+    g.setColour (Colour (24, 31, 34));
     g.fillRect (thumbnailBounds);
     g.setColour (Colours::white);
     g.drawFittedText ("No File Loaded", thumbnailBounds, Justification::centred, 1.0f);
@@ -167,45 +174,56 @@ void GranularSynthAudioProcessorEditor::paintIfNoFileLoaded (Graphics& g, const 
 
 void GranularSynthAudioProcessorEditor::paintIfFileLoaded (Graphics& g, const Rectangle<int>& thumbnailBounds)
 {
-    if (thumbnail.getNumChannels() != 0)
-    {
-        cout<<"thumbnail successfully loaded"<<endl;
-    }
-    g.setColour (Colours::black);
+    g.setColour (Colour (24, 31, 34));
     g.fillRect (thumbnailBounds);
-    g.setColour (Colours::red);
+    g.setColour (Colour (49, 200, 222));
     thumbnail.drawChannels (g,
                             thumbnailBounds,
                             0.0,
                             thumbnail.getTotalLength(),
-                            1.0f);                                  
+                            1.0f);
 }
+
+void GranularSynthAudioProcessorEditor::paintPlayHead (Graphics& g, const Rectangle<int>& thumbnailBounds)
+{
+    g.setColour (Colours::white);
+    g.drawLine (processor.getPosition() * (getWidth() - 60) + thumbnailBounds.getX(), thumbnailBounds.getY(), processor.getPosition()  * (getWidth() - 60) + thumbnailBounds.getX(),
+                thumbnailBounds.getBottom(), 1.0f);
+}
+
 
 void GranularSynthAudioProcessorEditor::resized()
 {
     int linespace = 40;
-    const int border = 125;
-    int startHeight = 250;
+    const int border = 140;
+    int startHeight = 270;
     openButton.setBounds(getWidth() - 100, 45, 80, 20);
-    positionSlider.setBounds(10 + border, startHeight + linespace, getWidth() - 20 - border, 20);
-    positionLabel.setBounds(10, startHeight + linespace, 10 + border, 20);
-    randomPositionSlider.setBounds(10 + border, startHeight + 2 * linespace, getWidth() - 20 - border, 20);
-    randomPositionLabel.setBounds(10, startHeight + 2 * linespace, 10 + border, 20);
-    durationSlider.setBounds(10 + border, startHeight + 3 * linespace, getWidth() - 20 - border, 20);
-    durationLabel.setBounds(10, startHeight + 3 * linespace, 10 + border, 20);
-    randomDurationSlider.setBounds(10 + border, startHeight + 4 * linespace, getWidth() - 20 - border, 20);
-    randomDurationLabel.setBounds(10, startHeight + 4 * linespace, 10 + border, 20);
-    densitySlider.setBounds(10 + border, startHeight + 5 * linespace, getWidth() - 20 - border, 20);
-    densityLabel.setBounds(10, startHeight + 5 * linespace, 10 + border, 20);
-    randomDensitySlider.setBounds(10 + border, startHeight + 6 * linespace, getWidth() - 20 - border, 20);
-    randomDensityLabel.setBounds(10, startHeight + 6 * linespace, 10 + border, 20);
-    transposeSlider.setBounds(10 + border, startHeight + 7 * linespace, getWidth() - 20 - border, 20);
-    transposeLabel.setBounds(10, startHeight + 7 * linespace, 10 + border, 20);
-    randomTransposeSlider.setBounds(10 + border, startHeight + 8 * linespace, getWidth() - 20 - border, 20);
-    randomTransposeLabel.setBounds(10, startHeight + 8 * linespace, 10 + border, 20);
-    volumeSlider.setBounds(10 + border, startHeight + 9 * linespace, getWidth() - 20 - border, 20);
-    volumeLabel.setBounds(10, startHeight + 9 * linespace, 10 + border, 20);
+    positionSlider.setBounds(10 + border, startHeight + linespace, getWidth() - 35 - border, 20);
+    positionLabel.setBounds(30, startHeight + linespace, 10 + border, 20);
+    randomPositionSlider.setBounds(10 + border, startHeight + 2 * linespace, getWidth() - 35 - border, 20);
+    randomPositionLabel.setBounds(30, startHeight + 2 * linespace, 10 + border, 20);
+    durationSlider.setBounds(10 + border, startHeight + 3 * linespace, getWidth() - 35 - border, 20);
+    durationLabel.setBounds(30, startHeight + 3 * linespace, 10 + border, 20);
+    randomDurationSlider.setBounds(10 + border, startHeight + 4 * linespace, getWidth() - 35 - border, 20);
+    randomDurationLabel.setBounds(30, startHeight + 4 * linespace, 10 + border, 20);
+    densitySlider.setBounds(10 + border, startHeight + 5 * linespace, getWidth() - 35 - border, 20);
+    densityLabel.setBounds(30, startHeight + 5 * linespace, 10 + border, 20);
+    randomDensitySlider.setBounds(10 + border, startHeight + 6 * linespace, getWidth() - 35 - border, 20);
+    randomDensityLabel.setBounds(30, startHeight + 6 * linespace, 10 + border, 20);
+    transposeSlider.setBounds(10 + border, startHeight + 7 * linespace, getWidth() - 35 - border, 20);
+    transposeLabel.setBounds(30, startHeight + 7 * linespace, 10 + border, 20);
+    randomTransposeSlider.setBounds(10 + border, startHeight + 8 * linespace, getWidth() - 35 - border, 20);
+    randomTransposeLabel.setBounds(30, startHeight + 8 * linespace, 10 + border, 20);
+    volumeSlider.setBounds(10 + border, startHeight + 9 * linespace, getWidth() - 35 - border, 20);
+    volumeLabel.setBounds(30, startHeight + 9 * linespace, 10 + border, 20);
 }
+
+void GranularSynthAudioProcessorEditor::timerCallback()
+{
+
+}
+
+
 
 //==============================================================================
 /** button stuffs */
@@ -222,6 +240,7 @@ void GranularSynthAudioProcessorEditor::sliderValueChanged(Slider* slider)
     
     if (slider == &positionSlider)
     {
+        repaint();
         processor.setPosition((float)slider->getValue());
         cout<<"position: "<<processor.getPosition()<<endl;
     }

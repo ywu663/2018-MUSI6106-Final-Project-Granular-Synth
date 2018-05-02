@@ -127,6 +127,9 @@ private:
     float m_fTranspose = 0.0;
     float m_fRandomTranspose = 0.0;
     float m_fVolume = 0.0;
+    //delay to prevent glitching sound
+    const float m_delay = 500.0;
+
     //processing parameters
     int midiNotes[128] = {};
     float m_fSampleRateInHz = 0.0;
